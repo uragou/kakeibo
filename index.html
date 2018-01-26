@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--http://www.ksknet.net/javascript/post_54.html-->
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>家計簿</title>
+    </head>
+    <div id="aaa">
+    </div>
+    <body>
+        <form mathod="post">
+                分類
+                <select name="bunrui" id="bunrui">
+                    <option value="1">収入</option>
+                    <option value="2">支出</option>
+                </select>
+                金額
+                <input type="number" name="kingaku" min="0" required step="1.0">
+                <select name="naiyou" id="naiyou"> 
+                </select>
+                <input type="submit" value="送信">
+        </form>
+        <script src="index.js"></script>
+    </body>
+</html>
