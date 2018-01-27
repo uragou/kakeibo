@@ -7,10 +7,10 @@ buntrijs.addEventListener("change",SorS,false);
 SorS(event);
 
 function SorS(event){
-    console.log(this.value);
     let naiyoujs = document.getElementById("naiyou");
     let fragment = document.createDocumentFragment();
     naiyoujs.innerHTML="";
+
     if(this.value == 2){
         var opts = new Array(11);
         for(let lop = 0; lop< opts.length ; lop++){
@@ -41,6 +41,23 @@ function SorS(event){
         for(let lop = 0; lop< opts.length ; lop++){
             fragment.appendChild(opts[lop]);
         }
+
+        Fromto(this.value);
+
+    }else if(this.value == 3){
+        var opts = new Array(2);
+        for(let lop = 0; lop< opts.length ; lop++){
+            opts[lop] = document.createElement("option");
+        }
+        opts[0].setAttribute("value","ginko");
+        opts[0].textContent="銀行";
+        opts[1].setAttribute("value","saihu");
+        opts[1].textContent="財布";
+        for(let lop = 0; lop< opts.length ; lop++){
+            fragment.appendChild(opts[lop]);
+        } 
+        Fromto(this.value);
+        
     }else{
         var opts = new Array(5);
         for(let lop = 0; lop< opts.length ; lop++){
@@ -59,6 +76,48 @@ function SorS(event){
         for(let lop = 0; lop< opts.length ; lop++){
             fragment.appendChild(opts[lop]);
         } 
+        Fromto(this.value);
     }
     naiyoujs.appendChild(fragment);
+
+}
+
+
+function Fromto(sentaku){
+    let Select = document.createElement("select");
+    let idoujs = document.getElementById("idou");
+    let basyojs = document.getElementById("basyo");
+    let fragment = document.createDocumentFragment();
+    basyojs.innerHTML="";
+    idoujs.innerHTML="";
+
+    if(sentaku == 3){
+        idoujs.textContent = "→";
+        Select.setAttribute("name","to");
+        Select.setAttribute("id","to");
+    }else{
+        basyojs.textContent = "出所 ";
+        Select.setAttribute("name","doko");
+        Select.setAttribute("id","doko");
+    }
+
+    var opts = new Array(2);
+    for(let lop = 0; lop< opts.length ; lop++){
+        opts[lop] = document.createElement("option");
+    }
+    opts[0].setAttribute("value","ginko");
+    opts[0].textContent="銀行";
+    opts[1].setAttribute("value","saihu");
+    opts[1].textContent="財布";
+    for(let lop = 0; lop< opts.length ; lop++){
+        fragment.appendChild(opts[lop]);
+    } 
+
+    Select.appendChild(fragment);
+
+    if(sentaku == 3){
+        idoujs.appendChild(Select);
+    }else{
+        basyojs.appendChild(Select);
+    }
 }
