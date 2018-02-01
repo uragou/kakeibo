@@ -1,0 +1,27 @@
+kakeibo_db
+
+user kakeibo pass kakeibokey
+table kakeibo
+
+zaisan
+
+id int AUTOINCREMENT　　主キー
+name var char(20)
+kane int
+
+zougen
+
+id int AUTOINCREMENT　　主キー
+bunrui tinyint
+basyo tinyint
+kane int
+syurui tinyint
+time timestap
+
+idou
+
+id int AUTOINCREMENT　　主キー
+kane int
+mae tinyint
+ato tinyint
+time timestap
