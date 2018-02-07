@@ -5,13 +5,9 @@ var socket = require('socket.io')(http);
 let port = 55555;
 
 
-http.listen(port);
-
-socket.on('connection', saisyo);
-
-
-function saisyo(){
-
+http.listen(port,function(){
+     //mysqlからのデータ取得したい
+    console.log("開始");
     var mysql = require('mysql');
  
     let dbConfig = {
@@ -36,14 +32,28 @@ function saisyo(){
             let json = JSON.stringify(obj);
 
             socket.emit('message',json);
+            console.log(json);
         }
         
         console.log(results[0].name);
     });
+});
 
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/test.html');
+});
 
-    socket.on('disconnect', setudan);
-}
+socket.on('connection',function(socket){
+
+    console.log('user connected');
+    //切断イベント
+    socket.on('disconnect',function(){
+        console.log('user disconnected');
+    });
+    socket.on('message',function(){
+        io.emit('message',"aaa");
+    });
+});
 
 function setudan(){
     console.log('user disconnected');
