@@ -16,6 +16,7 @@ bunrui tinyint
 basyo tinyint
 kane int
 syurui tinyint
+komento varchar 255;
 time timestap
 
 idou
@@ -24,4 +25,5 @@ id int AUTOINCREMENT　　主キー
 kane int
 mae tinyint
 ato tinyint
+komento varchar 255;
 time timestap

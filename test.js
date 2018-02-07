@@ -1,25 +1,16 @@
-
-/*var mysql = require('mysql');
- 
-let dbConfig = {
-     host: '127.0.0.1',
-     user: 'kakeibo',
-     password: '',
-     database: 'kakeibo_db'
-    };
-let connection = mysql.createConnection(dbConfig);
-
-connection.query('SELECT name,kane FROM zaisan');*/
-
-let http = require('http');
+//https://socket.io/get-started/chat/
+var app = require('express')();
+var http = require('http').Server(app);
+var socket = require('socket.io')(http);
 let port = 55555;
-let server = http.createServer();
 
-server.on('request',naiyo);
-server.listen(port);
 
-function naiyo(req,res){
-    res.writeHead(200, {'Content-Type': 'text/plain'});
+http.listen(port);
+
+socket.on('connection', saisyo);
+
+
+function saisyo(){
 
     var mysql = require('mysql');
  
@@ -32,17 +23,30 @@ function naiyo(req,res){
     let connection = mysql.createConnection(dbConfig);
     connection.connect();
 
-    /*var query = connection.query('select name,kane from zaisan;', function (err, results) {
+    var query = connection.query('select name,kane from zaisan;', function (err, results) {
         console.log('--- results ---');
         console.log(results);
-    });*/
-    
-    var query = connection.query('SELECT name,kane FROM zaisan;',function (error, results, fields){
-        console.log(error);
-        console.log(results);
-        console.log(fields);
+
+        for(let lop=0; lop < results.length ;lop++){
+            let obj = {
+                type: 'st',
+                name: results[lop].name,
+                num: results[lop].kane
+            };
+            let json = JSON.stringify(obj);
+
+            socket.emit('message',json);
+        }
+        
+        console.log(results[0].name);
     });
-    console.log("実行");
-    res.end('Hello World\n');
+
+
+    socket.on('disconnect', setudan);
 }
 
+function setudan(){
+    console.log('user disconnected');
+}
+
+    
