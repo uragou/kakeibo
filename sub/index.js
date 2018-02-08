@@ -1,3 +1,7 @@
+const socket = io.connect('http://localhost:55555', {
+  'sync disconnect on unload': true
+});
+
 let buntrijs = document.getElementById('bunrui');
 
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
