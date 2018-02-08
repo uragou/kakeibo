@@ -2,6 +2,17 @@ const socket = io.connect('http://localhost:55555', {
   'sync disconnect on unload': true
 });
 
+//最初にデータベースから現在のデータを貰う
+socket.on("nowdata",function(data){
+    console.log(data);
+    let json = JSON.parse(data);
+    let now = document.getElementById('nowdata');
+
+    let li = document.createElement('li');
+    li.textContent = json.name + " " + json.num; 
+    now.appendChild(li);
+});
+
 let buntrijs = document.getElementById('bunrui');
 
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/

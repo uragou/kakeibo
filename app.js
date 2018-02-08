@@ -45,7 +45,8 @@ io.on('connection', function(socket){
             let json = JSON.stringify(obj);
 
             socket.emit('nowdata',json);
-                console.log(json);
+            console.log("受ける");
+            console.log(json);
         }
         
         console.log(results[0].name);
