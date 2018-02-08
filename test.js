@@ -4,6 +4,9 @@ var http = require('http').Server(app);
 var socket = require('socket.io')(http);
 let port = 55555;
 
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/test.html');
+});
 
 http.listen(port,function(){
      //mysqlからのデータ取得したい
@@ -18,7 +21,10 @@ http.listen(port,function(){
     };
     let connection = mysql.createConnection(dbConfig);
     connection.connect();
+});
 
+socket.on('connection',function(socket){
+    
     var query = connection.query('select name,kane from zaisan;', function (err, results) {
         console.log('--- results ---');
         console.log(results);
@@ -37,20 +43,15 @@ http.listen(port,function(){
         
         console.log(results[0].name);
     });
-});
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/test.html');
-});
 
-socket.on('connection',function(socket){
-
+    
     console.log('user connected');
     //切断イベント
     socket.on('disconnect',function(){
         console.log('user disconnected');
     });
-    socket.on('message',function(){
+    socket.on('message',function(data){
         io.emit('message',"aaa");
     });
 });

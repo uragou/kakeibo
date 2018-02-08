@@ -1,26 +1,3 @@
-const socket = io.connect('http://localhost:55555', {
-  'sync disconnect on unload': true
-});
-
-
-let okuru = document.getElementById('okuru');
-
-okuru.addEventListener('click',sendHandler,false);
-
-function sendHandler(ev){
-  ev.preventDefault();
-  let obj = {
-    type: 'jan',
-    data: `ユーザー${userid}によってじゃんけんが開始されました`,
-    jset: 0
-  };
-  let json = JSON.stringify(obj);
-  // messageイベントを発生させる
-  socket.emit('message',json);
-}
-
-
-
 let buntrijs = document.getElementById('bunrui');
 
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
