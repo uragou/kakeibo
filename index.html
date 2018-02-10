@@ -6,7 +6,8 @@
         <title>家計簿</title>
     </head>
     <body>
-        <form mathod="post">
+        <!--自分自身に送る？-->
+        <form method="post" action="./post">
                 分類
                 <select name="bunrui" id="bunrui">
                     <option value="1">収入</option>
@@ -20,6 +21,7 @@
                 <select name="naiyou" id="naiyou"> 
                 </select>
                 <span id = "idou"></span>
+                コメント
                 <input type="text">
                 <input id="okuru" type="submit" value="送信">
         </form>

@@ -16,6 +16,7 @@ http.listen(port, function(){
 
 //接続
 io.on('connection', function(socket){
+    //最初のコネクトはio そしてその中の引数socketで他のイベントを取得するらしい
     console.log('a user connected');
 
     //mysqlからのデータ取得したい
@@ -31,10 +32,15 @@ io.on('connection', function(socket){
     let connection = mysql.createConnection(dbConfig);
     connection.connect();
 
+    socket.on('reqest',function(req,res){
+        console.log(req);
+        console.log(res);
+        console.log("aaa");
+    });
 
     var query = connection.query('select name,kane from zaisan;', function (err, results) {
-        console.log('--- results ---');
-        console.log(results);
+        //console.log('--- results ---');
+        //console.log(results);
 
         for(let lop=0; lop < results.length ;lop++){
             let obj = {
@@ -45,15 +51,15 @@ io.on('connection', function(socket){
             let json = JSON.stringify(obj);
 
             socket.emit('nowdata',json);
-            console.log("受ける");
-            console.log(json);
+            //console.log("受ける");
+            //console.log(json);
         }
         
-        console.log(results[0].name);
+        //console.log(results[0].name);
     });
 
     //切断
-    socket.on('disconnect', function(){
+    socket.on('disconnect', function(soc){
       console.log('user disconnected');
     });
     

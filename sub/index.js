@@ -1,6 +1,7 @@
-const socket = io.connect('http://localhost:55555', {
-  'sync disconnect on unload': true
-});
+
+const socket = io.connect('http://localhost:55555');
+
+
 
 //最初にデータベースから現在のデータを貰う
 socket.on("nowdata",function(data){
@@ -13,10 +14,31 @@ socket.on("nowdata",function(data){
     now.appendChild(li);
 });
 
+socket.on('request',function(req,res){
+    console.log(req);
+    console.log(res);
+    console.log("res");
+});
+
 let buntrijs = document.getElementById('bunrui');
+let smt = document.getElementById("okuru");
 
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
 buntrijs.addEventListener("change",SorS,false);
+//smt.addEventListener("click",submitHandler,false);
+
+function submitHandler(ev){
+    ev.preventDefault();
+    let obj ={
+        type: "sd",
+        test: 4444,
+        test2: "test"
+    };
+    let json = JSON.stringify(obj);
+    //特定の文字列　message　とかじゃないと送れないわけないだろ
+    socket.emit('message',json);
+    console.log("aaa");
+}
 
 SorS(event);
 
