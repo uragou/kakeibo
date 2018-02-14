@@ -1,138 +1,63 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var http = require('http');
+var fs   = require('fs');
 var port = 55555;
 
-//app.use(express.static('public'));
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
-});
-app.use('/', express.static('sub'));
+let server = http.createServer();
 
-http.listen(port, function(){
-    console.log('listening on *:55555');
+server.listen(port, function(){
+    console.log('listening on *:'+port);
 });
 
 //接続
-io.on('connection', function(socket){
-    //最初のコネクトはio そしてその中の引数socketで他のイベントを取得するらしい
-    console.log('a user connected');
+server.on("request",getdata);
 
-    //mysqlからのデータ取得したい
-    console.log("開始");
-    var mysql = require('mysql');
+function getdata(req,res){
+    console.log(req);
+    console.log("---------------");
+    //console.log(res);
+    console.log(req.url);
+    if(req.url == "/"){
+        res.writeHead(200,{"Content-Type": "text/html"});
+        Sfile("./index.html",res);
+    }else if(req.url == "/sub/index.js"){
+        res.writeHead(200,{"Content-Type": "text/javascript"});
+        Sfile("./sub/index.js",res);
+    }
+}
 
-    let dbConfig = {
-        host: 'localhost',
-        database: 'kakeibo_db',
-        user: 'kakeibo',
-        password: 'kakeibokey'
-    };
-    let connection = mysql.createConnection(dbConfig);
-    connection.connect();
 
-    socket.on('reqest',function(req,res){
-        console.log(req);
-        console.log(res);
-        console.log("aaa");
-    });
-
-    var query = connection.query('select name,kane from zaisan;', function (err, results) {
-        //console.log('--- results ---');
-        //console.log(results);
-
-        for(let lop=0; lop < results.length ;lop++){
-            let obj = {
-                type: 'st',
-                name: results[lop].name,
-                num: results[lop].kane
-            };
-            let json = JSON.stringify(obj);
-
-            socket.emit('nowdata',json);
-            //console.log("受ける");
-            //console.log(json);
+function Sfile(path,res){
+    fs.readFile(path,"UTF-8",function(err ,data){
+        if(err){
+            console.log("------err------");
+            console.log(err);
         }
-        
-        //console.log(results[0].name);
+        res.end(data);
+        console.log("転送");
     });
+}
 
-    //切断
-    socket.on('disconnect', function(soc){
-      console.log('user disconnected');
-    });
-    
+//mysqlからのデータ取得したい
+console.log("開始");
+var mysql = require('mysql');
+let dbConfig = {
+    host: 'localhost',
+    database: 'kakeibo_db',
+    user: 'kakeibo',
+    password: 'kakeibokey'
+};
+let connection = mysql.createConnection(dbConfig);
+connection.connect();
+
+var query = connection.query('select name,kane from zaisan;', function (err, results) {
+    //console.log('--- results ---');
+    //console.log(results);
+
+    for(let lop=0; lop < results.length ;lop++){
+        let obj = {
+            type: 'st',
+            name: results[lop].name,
+            num: results[lop].kane
+        };
+    };
 });
-
-/*
- //https://socket.io/get-started/chat/
- var app = require('express')();
- var http = require('http').Server(app);
- var socket = require('socket.io')(http);
- let port = 55555;
- 
- 
--http.listen(port);
--
--socket.on('connection', saisyo);
--
--
--function saisyo(){
--
-+http.listen(port,function(){
-+     //mysqlからのデータ取得したい
-+    console.log("開始");
-     var mysql = require('mysql');
-  
-     let dbConfig = {
-         host: 'localhost',
-         database: 'kakeibo_db',
-         user: 'kakeibo',
-         password: 'kakeibokey'
-     };
-     let connection = mysql.createConnection(dbConfig);
-     connection.connect();
- 
-     var query = connection.query('select name,kane from zaisan;', function (err, results) {
-         console.log('--- results ---');
-         console.log(results);
- 
-         for(let lop=0; lop < results.length ;lop++){
-             let obj = {
-                 type: 'st',
-                 name: results[lop].name,
-                 num: results[lop].kane
-             };
-             let json = JSON.stringify(obj);
- 
-             socket.emit('message',json);
-+            console.log(json);
-         }
-         
-         console.log(results[0].name);
-     });
-+});
- 
-+app.get('/', function(req, res){
-+  res.sendFile(__dirname + '/test.html');
-+});
- 
--    socket.on('disconnect', setudan);
--}
-+socket.on('connection',function(socket){
-+
-+    console.log('user connected');
-+    //切断イベント
-+    socket.on('disconnect',function(){
-+        console.log('user disconnected');
-+    });
-+    socket.on('message',function(){
-+        io.emit('message',"aaa");
-+    });
-+});
- 
- function setudan(){
-     console.log('user disconnected');
- }
-*/
