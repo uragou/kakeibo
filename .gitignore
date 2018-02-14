@@ -3,3 +3,6 @@ sample.js
 sample.html
 web.js
 public/
+node_modules/
+package.json
+package-lock.json
