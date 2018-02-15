@@ -1,18 +1,25 @@
+/*
+let name =[]; 
+ let num =[];
+ name[0] = "銀行";
+ num[0] = 0;
+ name[1] = "財布";
+ num[1] = 0;
+*/
+function bsql(name,num){
+    let nowdatajs = document.getElementById("nowdata");
+    let fragment = document.createDocumentFragment();
+    let tr = document.createElement("tr");
+    let nametd = document.createElement("td");
+    let numtd = document.createElement("td");
+    nametd.textContent = name;
+    numtd.textContent = num;
 
-//const socket = io.connect('http://localhost:55555');
-
-
-
-//最初にデータベースから現在のデータを貰う
-/*socket.on("nowdata",function(data){
-    console.log(data);
-    let json = JSON.parse(data);
-    let now = document.getElementById('nowdata');
-
-    let li = document.createElement('li');
-    li.textContent = json.name + " " + json.num; 
-    now.appendChild(li);
-});*/
+    fragment.appendChild(tr)
+    fragment.appendChild(nametd);
+    fragment.appendChild(numtd);
+    nowdatajs.appendChild(fragment);
+}
 
 let buntrijs = document.getElementById('bunrui');
 
@@ -20,7 +27,9 @@ let buntrijs = document.getElementById('bunrui');
 buntrijs.addEventListener("change",SorS,false);
 //smt.addEventListener("click",submitHandler,false);
 
-
+for(let lop=0;lop<name.length;lop++){
+    bsql(name[lop],num[lop]);
+}
 SorS(event);
 
 function SorS(event){

@@ -11,8 +11,9 @@ server.listen(port, function(){
 //接続
 server.on("request",getdata);
 
+
 function getdata(req,res){
-    console.log(req);
+    //console.log(req);
     console.log("---------------");
     //console.log(res);
     console.log(req.url);
@@ -25,39 +26,49 @@ function getdata(req,res){
     }
 }
 
-
 function Sfile(path,res){
     fs.readFile(path,"UTF-8",function(err ,data){
         if(err){
             console.log("------err------");
             console.log(err);
         }
-        res.end(data);
+        if(path == "./sub/index.js"){
+            sqladd(path,res,data);
+        }else{
+            res.end(data);
+        }
         console.log("転送");
     });
 }
 
-//mysqlからのデータ取得したい
-console.log("開始");
-var mysql = require('mysql');
-let dbConfig = {
-    host: 'localhost',
-    database: 'kakeibo_db',
-    user: 'kakeibo',
-    password: 'kakeibokey'
-};
-let connection = mysql.createConnection(dbConfig);
-connection.connect();
-
-var query = connection.query('select name,kane from zaisan;', function (err, results) {
-    //console.log('--- results ---');
-    //console.log(results);
-
-    for(let lop=0; lop < results.length ;lop++){
-        let obj = {
-            type: 'st',
-            name: results[lop].name,
-            num: results[lop].kane
-        };
+function sqladd(path,res,data){
+    //mysqlからのデータ取得したい
+    var mysql = require('mysql');
+    let dbConfig = {
+        host: 'localhost',
+        database: 'kakeibo_db',
+        user: 'kakeibo',
+        password: 'kakeibokey'
     };
-});
+    let connection = mysql.createConnection(dbConfig);
+    connection.connect();
+    var query = connection.query('select name,kane from zaisan;', function (err, results) {
+        //console.log('--- results ---');
+        //console.log(results);
+        let objname;
+        let objnum;
+
+        res.write ("\n let name =[]; \n let num =[];");
+        for(let lop=0; lop < results.length ;lop++){
+            objname = "\n name[" + lop + "] = \"" + results[lop].name + "\";";
+            objnum = "\n num[" + lop + "] = " + results[lop].kane + ";";
+            console.log(objname);
+            console.log(objnum);
+            
+            res.write(objname);
+            res.write(objnum);
+        }
+        res.write(data);
+        res.end();
+    });
+}
