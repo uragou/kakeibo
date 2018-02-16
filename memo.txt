@@ -12,18 +12,18 @@ kane int
 zougen
 
 id int AUTOINCREMENT　　主キー
-bunrui tinyint
-basyo tinyint
+bunrui varchar 8
+basyo varchar 32
 kane int
-syurui tinyint
+syurui varchar 32
 komento varchar 255;
-time timestap
+time date
 
 idou
 
 id int AUTOINCREMENT　　主キー
 kane int
-mae tinyint
-ato tinyint
+mae varchar 32
+ato varchar 32
 komento varchar 255;
-time timestap
+time date
