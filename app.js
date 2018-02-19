@@ -92,18 +92,20 @@ function zougenadd(path,res,data){
         res.write ("\n let id =[]; \n let bunrui =[];\n let basyo =[];\n let kane =[];");
         res.write ("\n let syurui =[]; \n let komento =[];\n let time =[];");
         for(let lop=0; lop < results.length ;lop++){
+            var timehen = "0123456789";
             res.write("\n id[" + lop + "] = \"" + results[lop].id + "\";");
             res.write("\n bunrui[" + lop + "] = \"" + results[lop].bunrui + "\";");
             res.write("\n basyo[" + lop + "] = \"" + results[lop].basyo + "\";");
             res.write("\n kane[" + lop + "] = \"" + results[lop].kane + "\";");
             res.write("\n syurui[" + lop + "] = \"" + results[lop].syurui + "\";");
-            if(results[lop].komento == "null"){
-                res.write("\n komento[" + lop + "] = \" \";");
+            if(!results[lop].komento){
+                res.write("\n komento[" + lop + "] = \"\";");
             }else{
                 res.write("\n komento[" + lop + "] = \"" + results[lop].komento + "\";");
             }
-            console.log(results[lop].time);
-            res.write("\n time[" + lop + "] = \"" + results[lop].time + "\";");
+            //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
+            //console.log(results[lop].time);
+            res.write("\n time[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
         }
         res.write(data);
         res.end();
