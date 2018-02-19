@@ -10,9 +10,9 @@
         <form method="post" action="./post">
                 分類
                 <select name="bunrui" id="bunrui">
-                    <option value="1">収入</option>
-                    <option value="2">支出</option>
-                    <option value="3">移動</option>
+                    <option value="収入">収入</option>
+                    <option value="支出">支出</option>
+                    <option value="移動">移動</option>
                 </select>
                 <span id = "basyo"></span>
                 金額
@@ -35,6 +35,16 @@
             <tr>
                 <th>ID</th>
                 <th>分類</th>
+                <th>場所</th>
+                <th>金額</th>
+                <th>種類</th>
+                <th>コメント</th>
+                <th>日付</th>
+            </tr>
+        </table>
+        <table id ="idoudata">
+            <tr>
+                <th>ID</th>
                 <th>場所</th>
                 <th>金額</th>
                 <th>種類</th>

@@ -22,22 +22,29 @@ let dbConfig = {
 let connection = mysql.createConnection(dbConfig);
 connection.connect();
 
-
 function getdata(req,res){
     //console.log(req);
     console.log("---------------");
     //console.log(res);
     console.log(req.url);
-    if(req.url == "/"){
-        res.writeHead(200,{"Content-Type": "text/html"});
-        Sfile("./index.html",res);
-    }else if(req.url == "/sub/index.js"){
-        res.writeHead(200,{"Content-Type": "text/javascript"});
-        Sfile("./sub/index.js",res);
-    }else if(req.url == "/sub/zougen.js"){
-        res.writeHead(200,{"Content-Type": "text/javascript"});
-        Sfile("./sub/zougen.js",res);
+    if(req.method == "GET"){
+        if(req.url == "/"){
+            res.writeHead(200,{"Content-Type": "text/html"});
+            Sfile("./index.html",res);
+        }else if(req.url == "/sub/index.js"){
+            res.writeHead(200,{"Content-Type": "text/javascript"});
+            Sfile("./sub/index.js",res);
+        }else if(req.url == "/sub/zougen.js"){
+            res.writeHead(200,{"Content-Type": "text/javascript"});
+            Sfile("./sub/sql.js",res);
+        }
+        else if(req.url == "/favicon.ico"){
+            console.log("ない");
+        }
+    }else if(req.method == "POST"){
+        console.log(req);
     }
+
 }
 
 function Sfile(path,res){
@@ -46,10 +53,8 @@ function Sfile(path,res){
             console.log("------err------");
             console.log(err);
         }
-        if(path == "./sub/index.js"){
+        if(path == "./sub/sql.js"){
             sqladd(path,res,data);
-        }else if(path == "./sub/zougen.js"){
-            zougenadd(path,res,data);
         }else{
             res.end(data);
         }
@@ -68,44 +73,46 @@ function sqladd(path,res,data){
             res.write("\n name[" + lop + "] = \"" + results[lop].name + "\";");
             res.write("\n num[" + lop + "] = " + results[lop].kane + ";");
         }
-        res.write(data);
-        res.end();
     });
-}
-/*
-id int AUTOINCREMENT　　主キー
-bunrui varchar 8
-basyo varchar 32
-kane int
-syurui varchar 32
-komento varchar 255;
-time date
-*/
-
-
-
-//途中！！！
-function zougenadd(path,res,data){
-    connection.query('select * from zougen;', function (err, results) {
+    connection.query('select * from zougen order by id desc limit 10;;', function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
-        res.write ("\n let id =[]; \n let bunrui =[];\n let basyo =[];\n let kane =[];");
-        res.write ("\n let syurui =[]; \n let komento =[];\n let time =[];");
+        res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
+        res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
-            var timehen = "0123456789";
-            res.write("\n id[" + lop + "] = \"" + results[lop].id + "\";");
-            res.write("\n bunrui[" + lop + "] = \"" + results[lop].bunrui + "\";");
-            res.write("\n basyo[" + lop + "] = \"" + results[lop].basyo + "\";");
-            res.write("\n kane[" + lop + "] = \"" + results[lop].kane + "\";");
-            res.write("\n syurui[" + lop + "] = \"" + results[lop].syurui + "\";");
+            res.write("\n zouid[" + lop + "] = \"" + results[lop].id + "\";");
+            res.write("\n zoubunrui[" + lop + "] = \"" + results[lop].bunrui + "\";");
+            res.write("\n zoubasyo[" + lop + "] = \"" + results[lop].basyo + "\";");
+            res.write("\n zoukane[" + lop + "] = \"" + results[lop].kane + "\";");
+            res.write("\n zousyurui[" + lop + "] = \"" + results[lop].syurui + "\";");
             if(!results[lop].komento){
-                res.write("\n komento[" + lop + "] = \"\";");
+                res.write("\n zoukomento[" + lop + "] = \"\";");
             }else{
-                res.write("\n komento[" + lop + "] = \"" + results[lop].komento + "\";");
+                res.write("\n zoukomento[" + lop + "] = \"" + results[lop].komento + "\";");
             }
             //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
             //console.log(results[lop].time);
-            res.write("\n time[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
+            res.write("\n zoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
+        }
+    });
+    connection.query('select * from idou order by id desc limit 10;', function (err, results) {
+        //console.log('--- results ---');
+        //console.log(results);
+        res.write ("\n let idouid =[]; \n let idoukane =[];\n let idoumae =[];");
+        res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
+        for(let lop=0; lop < results.length ;lop++){
+            res.write("\n idouid[" + lop + "] = \"" + results[lop].id + "\";");
+            res.write("\n idoukane[" + lop + "] = \"" + results[lop].kane + "\";");
+            res.write("\n idoumae[" + lop + "] = \"" + results[lop].mae + "\";");
+            res.write("\n idouato[" + lop + "] = \"" + results[lop].ato + "\";");
+            if(!results[lop].komento){
+                res.write("\n idoukomento[" + lop + "] = \"\";");
+            }else{
+                res.write("\n idoukomento[" + lop + "] = \"" + results[lop].komento + "\";");
+            }
+            //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
+            //console.log(results[lop].time);
+            res.write("\n idoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
         }
         res.write(data);
         res.end();
