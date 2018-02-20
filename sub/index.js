@@ -1,17 +1,19 @@
 
 let buntrijs = document.getElementById('bunrui');
-
+let okurujs = document.getElementById('okuru');
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
 buntrijs.addEventListener("change",SorS,false);
+okurujs.addEventListener("click",sendivent,false);
 
 SorS(event);
 
 function SorS(event){
+    //event.preventDefault();
     let naiyoujs = document.getElementById("naiyou");
     let fragment = document.createDocumentFragment();
     naiyoujs.innerHTML="";
 
-    if(this.value == 2){
+    if(this.value == "支出"){
         var opts = new Array(11);
         for(let lop = 0; lop< opts.length ; lop++){
             opts[lop] = document.createElement("option");
@@ -44,7 +46,7 @@ function SorS(event){
 
         Fromto(this.value);
 
-    }else if(this.value == 3){
+    }else if(this.value == "移動"){
         var opts = new Array(2);
         for(let lop = 0; lop< opts.length ; lop++){
             opts[lop] = document.createElement("option");
@@ -91,10 +93,10 @@ function Fromto(sentaku){
     basyojs.innerHTML="";
     idoujs.innerHTML="";
 
-    if(sentaku == 3){
+    if(sentaku == "移動"){
         idoujs.textContent = "→";
-        Select.setAttribute("name","to");
-        Select.setAttribute("id","to");
+        Select.setAttribute("name","doko");
+        Select.setAttribute("id","doko");
     }else{
         basyojs.textContent = "出所 ";
         Select.setAttribute("name","doko");
@@ -105,9 +107,9 @@ function Fromto(sentaku){
     for(let lop = 0; lop< opts.length ; lop++){
         opts[lop] = document.createElement("option");
     }
-    opts[0].setAttribute("value","ginko");
+    opts[0].setAttribute("value","銀行");
     opts[0].textContent="銀行";
-    opts[1].setAttribute("value","saihu");
+    opts[1].setAttribute("value","財布");
     opts[1].textContent="財布";
     for(let lop = 0; lop< opts.length ; lop++){
         fragment.appendChild(opts[lop]);
@@ -115,9 +117,37 @@ function Fromto(sentaku){
 
     Select.appendChild(fragment);
 
-    if(sentaku == 3){
+    if(sentaku == "移動"){
         idoujs.appendChild(Select);
     }else{
         basyojs.appendChild(Select);
     }
+}
+
+//多分使わない
+function sendivent(event){
+    event.preventDefault();
+
+    var atai = document.forms.sqlsend;
+
+    if(atai.bunrui.value == "移動"){
+        var obj = {
+            bunrui : atai.bunrui.value,
+            basyo : atai.doko.value,
+            kane : atai.kane.value,
+            syurui : atai.naiyou.value,
+            komento : atai.text.value
+        };
+        
+    }else{
+        var obj = {
+            bunrui:atai.bunrui.value,
+            kane:atai.kane.value,
+            from:atai.naiyou.value,
+            to:atai.doko.value,
+            komento:atai.text.value
+        };
+    }
+    let json = JSON.stringify(obj);
+    console.log(json);
 }

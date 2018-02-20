@@ -22,6 +22,13 @@ let dbConfig = {
 let connection = mysql.createConnection(dbConfig);
 connection.connect();
 
+
+
+//http://m-miya.blog.jp/archives/1035999721.html
+
+
+
+
 function getdata(req,res){
     //console.log(req);
     console.log("---------------");
@@ -42,9 +49,20 @@ function getdata(req,res){
             console.log("ない");
         }
     }else if(req.method == "POST"){
-        console.log(req);
+        //上の統合しようよ
+        postshori(req,res);
     }
 
+}
+
+function postshori(req,res){
+    var postdata="";
+    req.on("data",function(data){
+        postdata += data;
+    });
+    req.on("end",function(){
+        console.log(postdata);
+    });
 }
 
 function Sfile(path,res){

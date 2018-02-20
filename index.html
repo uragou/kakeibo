@@ -7,23 +7,23 @@
     </head>
     <body>
         <!--自分自身に送る？-->
-        <form method="post" action="./post">
+        <form name="sqlsend" method="post" action="./post">
                 分類
                 <select name="bunrui" id="bunrui">
                     <option value="収入">収入</option>
                     <option value="支出">支出</option>
                     <option value="移動">移動</option>
                 </select>
-                <span id = "basyo"></span>
+                <span name = "basyo" id = "basyo"></span>
                 金額
-                <input type="number" name="kingaku" min="0" required step="1.0">
+                <input type="number" name="kane" min="0" required step="1.0">
                 種類
                 <select name="naiyou" id="naiyou"> 
                 </select>
-                <span id = "idou"></span>
+                <span name = "idou" id = "idou"></span>
                 コメント
-                <input type="text">
-                <input type="submit" value="送信">
+                <input name = "text" type="text">
+                <input id="okuru" type="submit" value="送信">
         </form>
         <table id ="nowdata">
             <tr>
