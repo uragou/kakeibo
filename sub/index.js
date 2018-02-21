@@ -3,7 +3,6 @@ let buntrijs = document.getElementById('bunrui');
 let okurujs = document.getElementById('okuru');
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
 buntrijs.addEventListener("change",SorS,false);
-okurujs.addEventListener("click",sendivent,false);
 
 SorS(event);
 
@@ -122,32 +121,4 @@ function Fromto(sentaku){
     }else{
         basyojs.appendChild(Select);
     }
-}
-
-//多分使わない
-function sendivent(event){
-    event.preventDefault();
-
-    var atai = document.forms.sqlsend;
-
-    if(atai.bunrui.value == "移動"){
-        var obj = {
-            bunrui : atai.bunrui.value,
-            basyo : atai.doko.value,
-            kane : atai.kane.value,
-            syurui : atai.naiyou.value,
-            komento : atai.text.value
-        };
-        
-    }else{
-        var obj = {
-            bunrui:atai.bunrui.value,
-            kane:atai.kane.value,
-            from:atai.naiyou.value,
-            to:atai.doko.value,
-            komento:atai.text.value
-        };
-    }
-    let json = JSON.stringify(obj);
-    console.log(json);
 }
