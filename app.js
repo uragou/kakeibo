@@ -77,11 +77,17 @@ function postshori(req,res){
             //後で
             console.log("aaa");
         }else{
-            if (zaisanAdd(bunkatu) == -1){
-                console.log("エラー処理");
-            }else{
-                zougenAdd(bunkatu);
-            }
+            zaisanAdd(bunkatu).then(
+                //アロー演算子ってマジで何なんだよ
+                resolve =>{
+                    console.log(resolve);
+                    zougenAdd(bunkatu);
+                },
+                reject => {
+                    console.log(reject);
+                }
+
+            );
         }
 
         console.log(postdata);
@@ -101,66 +107,42 @@ function zougenAdd(bunkatu){
 
 function zaisanAdd(bunkatu){
     // bunkatu[1]は場所
-    if ( bunkatu[0] == "移動"){
-        console.log("aaa");
-    }else{
-        var insertData;
-        connection.query("SELECT id,kane FROM zaisan WHERE name='" + bunkatu[1] + "';", function (err, results) {
-            //console.log('--- results ---');
-            //results[1].kaneは金額
-            if(bunkatu[0] == "収入"){
-                //bunkatu[2]は金額
-                console.log( parseInt(results[0].kane, 10)  + parseInt(bunkatu[2], 10));
-                bunkatu[2] = results[0].kane + parseInt(bunkatu[2], 10);
-            }else if(bunkatu[0] == "支出"){
-                //bunkatu[2]は金額
-                console.log(results[0].kane - parseInt(bunkatu[2], 10));
-                if(  (parseInt(results[0].kane, 10)  - parseInt(bunkatu[2], 10)) < 0){
-                    console.log("金額がマイナスになるエラー");
-                    return -1;
-                }else{
-                    bunkatu[2] = parseInt(results[0].kane, 10) - parseInt(bunkatu[2], 10);
+    return new Promise((resolve,reject)=>{
+        if ( bunkatu[0] == "移動"){
+            console.log("aaa");
+        }else{
+            var insertData;
+            var bufnum;
+            connection.query("SELECT id,kane FROM zaisan WHERE name='" + bunkatu[1] + "';", function (err, results) {
+                //console.log('--- results ---');
+                //results[1].kaneは金額
+                if(bunkatu[0] == "収入"){
+                    //bunkatu[2]は金額
+                    console.log( parseInt(results[0].kane, 10)  + parseInt(bunkatu[2], 10));
+                    bufnum = results[0].kane + parseInt(bunkatu[2], 10);
+                    resolve("OK");
+                }else if(bunkatu[0] == "支出"){
+                    //bunkatu[2]は金額
+                    console.log(results[0].kane - parseInt(bunkatu[2], 10));
+                    if(  (parseInt(results[0].kane, 10)  - parseInt(bunkatu[2], 10)) < 0){
+                        reject("金額がマイナスになるエラー");
+                        return -1;
+                    }else{
+                        bufnum = parseInt(results[0].kane, 10) - parseInt(bunkatu[2], 10);
+                    }
+                    resolve("OK");
                 }
-            }
-            insertData = "UPDATE zaisan SET kane =" + bunkatu[2] + " WHERE id=" + results[0].id + ";";
+                insertData = "UPDATE zaisan SET kane =" + bufnum + " WHERE id=" + results[0].id + ";";
 
-            connection.query(insertData, function (err, results) {
-                console.log('--- results ---');
-                console.log(results);
-                console.log(err);
+                connection.query(insertData, function (err, results) {
+                    console.log('--- results ---');
+                    console.log(results);
+                    console.log(err);
+                });
             });
-        });
-    }
-    return 0;
+        }
+    });
 }
-/*
-function sendivent(event){
-    event.preventDefault();
-
-    var atai = document.forms.sqlsend;
-
-    if(atai.bunrui.value == "移動"){
-        var obj = {
-            bunrui : atai.bunrui.value,
-            basyo : atai.doko.value,
-            kane : atai.kane.value,
-            syurui : atai.naiyou.value,
-            komento : atai.text.value
-        };
-        
-    }else{
-        var obj = {
-            bunrui:atai.bunrui.value,
-            kane:atai.kane.value,
-            from:atai.naiyou.value,
-            to:atai.doko.value,
-            komento:atai.text.value
-        };
-    }
-    let json = JSON.stringify(obj);
-    console.log(json);
-}*/
-
 
 function Sfile(path,res){
     fs.readFile(path,"UTF-8",function(err ,data){
