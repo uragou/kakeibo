@@ -1,3 +1,4 @@
+
 var http = require('http');
 var fs   = require('fs');
 var port = 55555;
@@ -74,10 +75,38 @@ function postshori(req,res){
         }
         // bunkatu[0]は分類
         if( bunkatu[0] == "移動"){
-            //後で
-            console.log("aaa");
+            if(bunkatu[2] != bunkatu[3]){
+                zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+                    resolve =>{
+                        console.log(resolve);
+                        return zaisanAdd("in",bunkatu[3],bunkatu[1]);
+                    },
+                    reject => {
+                        console.log(reject);
+                    }
+
+                ).then(
+                    resolve =>{
+                        console.log(resolve);
+                        idouadd(bunkatu);
+                    },
+                    reject => {
+                        console.log(reject);
+                    }
+
+                );
+            }else{
+                console.log("同じじゃん");
+            }
         }else{
-            zaisanAdd(bunkatu).then(
+            var send = "";
+            if(bunkatu[0] == "収入"){
+                send = "in";
+            }else{
+                send = "out";
+            }
+
+            zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
                 //アロー演算子ってマジで何なんだよ
                 resolve =>{
                     console.log(resolve);
@@ -105,42 +134,45 @@ function zougenAdd(bunkatu){
     });
 }
 
-function zaisanAdd(bunkatu){
+function idouadd(bunkatu){
+    let insertData = "INSERT INTO idou (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "','" + bunkatu[4] + "', DATE(NOW()) );";
+    connection.query(insertData, function (err, results) {
+        //console.log('--- results ---');
+        //console.log(results);
+        //console.log(err);
+    });
+}
+
+function zaisanAdd(io,basyo,num){
     // bunkatu[1]は場所
     return new Promise((resolve,reject)=>{
-        if ( bunkatu[0] == "移動"){
-            console.log("aaa");
-        }else{
-            var insertData;
-            var bufnum;
-            connection.query("SELECT id,kane FROM zaisan WHERE name='" + bunkatu[1] + "';", function (err, results) {
-                //console.log('--- results ---');
-                //results[1].kaneは金額
-                if(bunkatu[0] == "収入"){
-                    //bunkatu[2]は金額
-                    console.log( parseInt(results[0].kane, 10)  + parseInt(bunkatu[2], 10));
-                    bufnum = results[0].kane + parseInt(bunkatu[2], 10);
-                    resolve("OK");
-                }else if(bunkatu[0] == "支出"){
-                    //bunkatu[2]は金額
-                    console.log(results[0].kane - parseInt(bunkatu[2], 10));
-                    if(  (parseInt(results[0].kane, 10)  - parseInt(bunkatu[2], 10)) < 0){
-                        reject("金額がマイナスになるエラー");
-                        return -1;
-                    }else{
-                        bufnum = parseInt(results[0].kane, 10) - parseInt(bunkatu[2], 10);
-                    }
-                    resolve("OK");
+        var insertData;
+        var bufnum;
+        connection.query("SELECT id,kane FROM zaisan WHERE name='" + basyo + "';", function (err, results) {
+            //console.log('--- results ---');
+            //results[0].kaneは金額
+            if(io == "in"){
+                console.log( parseInt(results[0].kane, 10)  + parseInt(num, 10));
+                bufnum = results[0].kane + parseInt(num, 10);
+                resolve("OK");
+            }else if(io == "out"){
+                console.log(results[0].kane - parseInt(num, 10));
+                if(  (parseInt(results[0].kane, 10)  - parseInt(num, 10)) < 0){
+                    reject("金額がマイナスになるエラー\n");
+                    return -1;
+                }else{
+                    bufnum = parseInt(results[0].kane, 10) - parseInt(num, 10);
                 }
-                insertData = "UPDATE zaisan SET kane =" + bufnum + " WHERE id=" + results[0].id + ";";
+                resolve("OK");
+            }
+            insertData = "UPDATE zaisan SET kane =" + bufnum + " WHERE id=" + results[0].id + ";";
 
-                connection.query(insertData, function (err, results) {
-                    console.log('--- results ---');
-                    console.log(results);
-                    console.log(err);
-                });
+            connection.query(insertData, function (err, results) {
+                console.log('--- results ---');
+                console.log(results);
+                console.log(err);
             });
-        }
+        });
     });
 }
 
