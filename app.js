@@ -42,11 +42,13 @@ function getdata(req,res){
         }else if(req.url == "/sub/index.js"){
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/index.js",res);
-        }else if(req.url == "/sub/zougen.js"){
+        }else if(req.url == "/sub/sql.js"){
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/sql.js",res);
-        }
-        else if(req.url == "/favicon.ico"){
+        }else if(req.url == "/sub/index.css"){
+            res.writeHead(200,{"Content-Type": "text/css"});
+            Sfile("./sub/index.css",res);
+        }else if(req.url == "/favicon.ico"){
             console.log("ない");
         }
     }else if(req.method == "POST"){
