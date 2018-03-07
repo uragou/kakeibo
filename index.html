@@ -8,8 +8,8 @@
     </head>
     <body>
         <!--自分自身に送る？-->
-        <h1>ザ・家計簿☆</h1>
-        <form name="sqlsend" method="post" action=".">
+        <h2>ザ・家計簿☆</h2>
+        <form id = "sqlsend" name="sqlsend" method="post" action=".">
                 分類
                 <select name="bunrui" id="bunrui">
                     <option value="収入">収入</option>
@@ -33,6 +33,7 @@
                 <th>金額</th>
             </tr>
         </table>
+        最近の収入や出費
         <table id ="zougendata">
             <tr>
                 <th>ID</th>
@@ -44,6 +45,7 @@
                 <th>日付</th>
             </tr>
         </table>
+        最近の財産移動
         <table id ="idoudata">
             <tr>
                 <th>ID</th>

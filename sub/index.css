@@ -1,19 +1,49 @@
-h1{
-    background-color: blue;
+body{
+    background-color: #8FF9A2;
+    text-align: center;
+}
+
+h2{
+    background-color:white;
+    margin: 5px auto;
+    width: 80%;
 }
 
 table{
+    background-color:white;
     margin: 10px;
     border-style: solid;
     border-collapse: collapse;
 }
 
 th{
-    padding: 5px;
+    padding: 3px;
     border-style: solid;
 }
 
 td{
-    padding: 2px 1px;
+    padding: 2px 5px;
     border-style: solid;
+}
+
+.kane{
+    text-align: right;
+    
+}
+
+#nowdata{
+    width: 50%;
+    margin: 5px auto;
+    
+}
+
+#zougendata{
+    width: 70%;
+    margin: 8px auto;
+    
+}
+
+#idoudata{
+    width: 70%;
+    margin: 8px auto;
 }

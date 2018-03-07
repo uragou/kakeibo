@@ -214,7 +214,7 @@ function sqladd(path,res,data){
             res.write("\n zouid[" + lop + "] = \"" + results[lop].id + "\";");
             res.write("\n zoubunrui[" + lop + "] = \"" + results[lop].bunrui + "\";");
             res.write("\n zoubasyo[" + lop + "] = \"" + results[lop].basyo + "\";");
-            res.write("\n zoukane[" + lop + "] = \"" + results[lop].kane + "\";");
+            res.write("\n zoukane[" + lop + "] = " + results[lop].kane + ";");
             res.write("\n zousyurui[" + lop + "] = \"" + results[lop].syurui + "\";");
             if(!results[lop].komento){
                 res.write("\n zoukomento[" + lop + "] = \"\";");
@@ -233,7 +233,7 @@ function sqladd(path,res,data){
         res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
             res.write("\n idouid[" + lop + "] = \"" + results[lop].id + "\";");
-            res.write("\n idoukane[" + lop + "] = \"" + results[lop].kane + "\";");
+            res.write("\n idoukane[" + lop + "] = " + results[lop].kane + ";");
             res.write("\n idoumae[" + lop + "] = \"" + results[lop].mae + "\";");
             res.write("\n idouato[" + lop + "] = \"" + results[lop].ato + "\";");
             if(!results[lop].komento){
