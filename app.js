@@ -2,7 +2,7 @@
 var http = require('http');
 var fs   = require('fs');
 var port = 55555;
-
+var bs = /[\ ]/;
 let server = http.createServer();
 
 server.listen(port, function(){
@@ -24,9 +24,21 @@ let connection = mysql.createConnection(dbConfig);
 connection.connect();
 
 
-
 //http://m-miya.blog.jp/archives/1035999721.html
-
+function forsql(data){
+    /*if(data.match(bs)){
+        data = "無効なコメントです。やめろ";
+    } else{
+        data = data.replace('&','\&');
+        data = data.replace("'","\'");
+        data = data.replace('`','\`');
+        data = data.replace('"','\"');
+        data = data.replace('<','\<');
+        data = data.replace('>','\>');
+        data = data.replace('_','\_');
+    }
+	return data;*/
+}
 
 
 
@@ -75,6 +87,7 @@ function postshori(req,res){
             //そのままだと = も含まれた
             bunkatu[lop] = taisyo.substr(bunkatuiti+1);
         }
+        bunkatu[4] = forsql(bunkatu[4]);
         // bunkatu[0]は分類
         if( bunkatu[0] == "移動"){
             if(bunkatu[2] != bunkatu[3]){
