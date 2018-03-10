@@ -2,7 +2,6 @@
 var http = require('http');
 var fs   = require('fs');
 var port = 55555;
-var bs = /[\ ]/;
 let server = http.createServer();
 
 server.listen(port, function(){
@@ -26,18 +25,26 @@ connection.connect();
 
 //http://m-miya.blog.jp/archives/1035999721.html
 function forsql(data){
-    /*if(data.match(bs)){
-        data = "無効なコメントです。やめろ";
-    } else{
-        data = data.replace('&','\&');
-        data = data.replace("'","\'");
-        data = data.replace('`','\`');
-        data = data.replace('"','\"');
-        data = data.replace('<','\<');
-        data = data.replace('>','\>');
-        data = data.replace('_','\_');
-    }
-	return data;*/
+    //replace自体が一回しか実行されない g付ければok
+    data = data.replace(/&/g,'a');
+    data = data.replace(/'/g,"a");
+    data = data.replace(/`/g,'a');
+    data = data.replace(/"/g,'a');
+    data = data.replace(/</g,'a');
+    data = data.replace(/>/g,'a');
+    data = data.replace(/_/g,'a');
+	return data;
+}
+
+function forHTML(data){
+    data = data.replace(/&/g,'a');
+    data = data.replace(/'/g,"a");
+    data = data.replace(/`/g,'a');
+    data = data.replace(/"/g,'a');
+    data = data.replace(/</g,'a');
+    data = data.replace(/>/g,'a');
+    data = data.replace(/_/g,'a');
+	return data;
 }
 
 
@@ -82,7 +89,8 @@ function postshori(req,res){
 
         for(let lop=0;lop<bunkatu.length;lop++){
             let bunkatuiti,taisyo = "";
-            taisyo = decodeURI(bunkatu[lop]);
+            //長いほうのデコードだと特殊記号も変換できる
+            taisyo = decodeURIComponent(bunkatu[lop]);
             bunkatuiti = taisyo.indexOf("=");
             //そのままだと = も含まれた
             bunkatu[lop] = taisyo.substr(bunkatuiti+1);
@@ -167,11 +175,11 @@ function zaisanAdd(io,basyo,num){
             //console.log('--- results ---');
             //results[0].kaneは金額
             if(io == "in"){
-                console.log( parseInt(results[0].kane, 10)  + parseInt(num, 10));
+                //console.log( parseInt(results[0].kane, 10)  + parseInt(num, 10));
                 bufnum = results[0].kane + parseInt(num, 10);
                 resolve("OK");
             }else if(io == "out"){
-                console.log(results[0].kane - parseInt(num, 10));
+                //console.log(results[0].kane - parseInt(num, 10));
                 if(  (parseInt(results[0].kane, 10)  - parseInt(num, 10)) < 0){
                     reject("金額がマイナスになるエラー\n");
                     return -1;
@@ -232,7 +240,8 @@ function sqladd(path,res,data){
             if(!results[lop].komento){
                 res.write("\n zoukomento[" + lop + "] = \"\";");
             }else{
-                res.write("\n zoukomento[" + lop + "] = \"" + results[lop].komento + "\";");
+                let komentoHTML = forHTML(results[lop].komento);
+                res.write("\n zoukomento[" + lop + "] = \"" + komentoHTML + "\";");
             }
             //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
             //console.log(results[lop].time);
@@ -252,7 +261,8 @@ function sqladd(path,res,data){
             if(!results[lop].komento){
                 res.write("\n idoukomento[" + lop + "] = \"\";");
             }else{
-                res.write("\n idoukomento[" + lop + "] = \"" + results[lop].komento + "\";");
+                let komentoHTML = forHTML(results[lop].komento);
+                res.write("\n idoukomento[" + lop + "] = \"" + komentoHTML + "\";");
             }
             //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
             //console.log(results[lop].time);
