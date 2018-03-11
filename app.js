@@ -24,26 +24,21 @@ connection.connect();
 
 
 //http://m-miya.blog.jp/archives/1035999721.html
-function forsql(data){
-    //replace自体が一回しか実行されない g付ければok
-    data = data.replace(/&/g,'a');
-    data = data.replace(/'/g,"a");
-    data = data.replace(/`/g,'a');
-    data = data.replace(/"/g,'a');
-    data = data.replace(/</g,'a');
-    data = data.replace(/>/g,'a');
-    data = data.replace(/_/g,'a');
-	return data;
-}
+
+//QUOTEにより変なデータがSQLにいかないようにできるが、連続の"""だと失敗(データは挿入されない)
 
 function forHTML(data){
-    data = data.replace(/&/g,'a');
-    data = data.replace(/'/g,"a");
-    data = data.replace(/`/g,'a');
-    data = data.replace(/"/g,'a');
-    data = data.replace(/</g,'a');
-    data = data.replace(/>/g,'a');
-    data = data.replace(/_/g,'a');
+
+    //replace自体が一回しか実行されない g付ければok
+    //配列の感じじゃなく、本当に文字数
+    data = data.substr(1,data.length-2);
+    data = data.replace(/&/g,'&amp;');  
+    data = data.replace(/'/g,"&#x27;");
+    data = data.replace(/`/g,'&#x60;');
+    data = data.replace(/"/g,'&quot;');
+    data = data.replace(/</g,'&lt;');
+    data = data.replace(/>/g,'&gt;');
+    data = data.replace(/ /g,'&nbsp;');
 	return data;
 }
 
@@ -90,12 +85,14 @@ function postshori(req,res){
         for(let lop=0;lop<bunkatu.length;lop++){
             let bunkatuiti,taisyo = "";
             //長いほうのデコードだと特殊記号も変換できる
+            //ただし半角スペースが+になったからreplace
+            //data = data.replace(/</g,'&lt;');
+            bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
             taisyo = decodeURIComponent(bunkatu[lop]);
             bunkatuiti = taisyo.indexOf("=");
             //そのままだと = も含まれた
             bunkatu[lop] = taisyo.substr(bunkatuiti+1);
         }
-        bunkatu[4] = forsql(bunkatu[4]);
         // bunkatu[0]は分類
         if( bunkatu[0] == "移動"){
             if(bunkatu[2] != bunkatu[3]){
@@ -149,7 +146,7 @@ function postshori(req,res){
 
 function zougenAdd(bunkatu){
 
-    let insertData = "INSERT INTO zougen (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "','" + bunkatu[4] + "', DATE(NOW()) );";
+    let insertData = "INSERT INTO zougen (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -158,7 +155,7 @@ function zougenAdd(bunkatu){
 }
 
 function idouadd(bunkatu){
-    let insertData = "INSERT INTO idou (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "','" + bunkatu[4] + "', DATE(NOW()) );";
+    let insertData = "INSERT INTO idou (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);

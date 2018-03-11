@@ -43,7 +43,7 @@ function zougensql(id,bunrui,basyo,kane,syurui,komento,time){
     kane = changekane(kane);
     kanetd.textContent = kane;
     syuruitd.textContent = syurui;
-    komentotd.textContent = komento;
+    komentotd.innerHTML = komento;
     timetd.textContent = time;
     fragment.appendChild(tr)
     fragment.appendChild(idtd);
@@ -72,7 +72,7 @@ function idousql(id,kane,mae,ato,komento,time){
     kanetd.textContent = kane;
     maetd.textContent = mae;
     atotd.textContent = ato;
-    komentotd.textContent = komento;
+    komentotd.innerHTML = komento;
     timetd.textContent = time;
     fragment.appendChild(tr)
     fragment.appendChild(idtd);
