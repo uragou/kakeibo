@@ -7,10 +7,17 @@ let server = http.createServer();
 server.listen(port, function(){
     console.log('listening on *:'+port);
 });
+let date = new Date();
+let hdate = "";
 
+if(date.getMonth()+1 < 10){
+    hdate = date.getFullYear()+'0'+ (date.getMonth()+1) ;
+}else{
+   hdate = date.getFullYear()+''+ (date.getMonth()+1) ;
+}
 //接続
 server.on("request",getdata);
-
+         
 //mysqlからのデータ取得したい
 var mysql = require('mysql');
 let dbConfig = {
@@ -21,7 +28,7 @@ let dbConfig = {
 };
 let connection = mysql.createConnection(dbConfig);
 connection.connect();
-
+init();
 
 //http://m-miya.blog.jp/archives/1035999721.html
 
@@ -42,6 +49,14 @@ function forHTML(data){
 	return data;
 }
 
+//テーブルがあるかどうか作成
+function init(){
+    connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
+        if(err){
+            CreateTable();
+        }
+    });
+}
 
 
 function getdata(req,res){
@@ -50,6 +65,8 @@ function getdata(req,res){
     //console.log(res);
     console.log(req.url);
     if(req.method == "GET"){
+
+
         if(req.url == "/"){
             res.writeHead(200,{"Content-Type": "text/html"});
             Sfile("./index.html",res);
@@ -62,6 +79,9 @@ function getdata(req,res){
         }else if(req.url == "/sub/index.css"){
             res.writeHead(200,{"Content-Type": "text/css"});
             Sfile("./sub/index.css",res);
+        }else if(req.url == "/sub/back.png"){
+            res.writeHead(200,{"Content-Type": "image/png"});
+            BSfile("./sub/back.png",res);
         }else if(req.url == "/favicon.ico"){
             console.log("ない");
         }
@@ -146,7 +166,7 @@ function postshori(req,res){
 
 function zougenAdd(bunkatu){
 
-    let insertData = "INSERT INTO zougen (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
+    let insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -155,7 +175,7 @@ function zougenAdd(bunkatu){
 }
 
 function idouadd(bunkatu){
-    let insertData = "INSERT INTO idou (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
+    let insertData = "INSERT INTO idou"+ hdate +" (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -210,6 +230,16 @@ function Sfile(path,res){
         console.log("転送");
     });
 }
+function BSfile(path,res){
+    fs.readFile(path,function(err ,data){
+        if(err){
+            console.log("------err------");
+            console.log(err);
+        }
+        res.end(data);
+        console.log("転送");
+    });
+}
 
 function sqladd(path,res,data){
     connection.query('SELECT name,kane FROM zaisan;', function (err, results) {
@@ -223,9 +253,10 @@ function sqladd(path,res,data){
             res.write("\n num[" + lop + "] = " + results[lop].kane + ";");
         }
     });
-    connection.query('SELECT * FROM zougen ORDER BY id DESC LIMIT 10;', function (err, results) {
+    connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
+
         res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
         res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
@@ -245,9 +276,10 @@ function sqladd(path,res,data){
             res.write("\n zoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
         }
     });
-    connection.query('SELECT * FROM idou ORDER BY id DESC LIMIT 10;', function (err, results) {
+    connection.query('SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
+
         res.write ("\n let idouid =[]; \n let idoukane =[];\n let idoumae =[];");
         res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
@@ -268,4 +300,16 @@ function sqladd(path,res,data){
         res.write(data);
         res.end();
     });
+}
+
+function CreateTable(){
+    let table = ["CREATE TABLE kakeibo_db.zougen" + hdate + " (id int AUTO_INCREMENT,bunrui varchar(8),basyo varchar(32),kane int,syurui varchar(32),komento varchar(255),time date,primary key(id));",
+                "CREATE TABLE kakeibo_db.idou" + hdate + " (id int AUTO_INCREMENT,kane int,mae varchar(32),ato varchar(32),komento varchar(255),time date,primary key(id));"];
+    for(let lop = 0; lop < 2 ;lop++){
+        connection.query(table[lop], function (err, results) {
+            console.log("新テーブル作成"+ (lop+1) + "/2");
+        });
+    }
+    console.log("作成終了");
+    
 }
