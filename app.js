@@ -82,8 +82,12 @@ function getdata(req,res){
         }else if(req.url == "/sub/back.png"){
             res.writeHead(200,{"Content-Type": "image/png"});
             BSfile("./sub/back.png",res);
-        }else if(req.url == "/favicon.ico"){
-            console.log("ない");
+        }else if(req.url == "/sub/aikon.ico"){
+            res.writeHead(200,{"Content-Type": "image/x-icon"});
+            BSfile("./sub/aikon.ico",res);
+        }else{
+            res.writeHead(200,{"Content-Type": "image/png"});
+            BSfile("./sub/sonota.png",res);
         }
     }else if(req.method == "POST"){
         //上の統合しようよ
