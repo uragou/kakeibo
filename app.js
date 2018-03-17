@@ -104,6 +104,7 @@ function postshori(req,res){
         postdata += data;
     });
     req.on("end",function(){
+        console.log(bunkatu);
         bunkatu=postdata.split("&");
 
         for(let lop=0;lop<bunkatu.length;lop++){

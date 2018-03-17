@@ -26,7 +26,7 @@
                 <span name = "idou" id = "idou"></span>
                 コメント
                 <input name = "text" type="text">
-                <input id="okuru" type="submit" value="送信">
+                <input id="okuru" type="submit" value="送  信">
         </form>
         <table id ="nowdata">
             <tr>
@@ -34,30 +34,33 @@
                 <th>金額</th>
             </tr>
         </table>
-        最近の収入や出費
-        <table id ="zougendata">
-            <tr>
-                <th>ID</th>
-                <th>分類</th>
-                <th>場所</th>
-                <th>金額</th>
-                <th>種類</th>
-                <th>コメント</th>
-                <th>日付</th>
-            </tr>
-        </table>
-        最近の財産移動
-        <table id ="idoudata">
-            <tr>
-                <th>ID</th>
-                <th>金額</th>
-                <th>移動元</th>
-                <th>移動先</th>
-                <th>コメント</th>
-                <th>日付</th>
-            </tr>
-        </table>
-        
+        <div class="tableset">
+            <h5>最近の収入や出費</h5>
+            <table id ="zougendata">
+                <tr>
+                    <th>ID</th>
+                    <th>分類</th>
+                    <th>場所</th>
+                    <th>金額</th>
+                    <th>種類</th>
+                    <th>コメント</th>
+                    <th>日付</th>
+                </tr>
+            </table>
+        </div>
+        <div class="tableset">
+            <h5>最近の財産移動</h5>
+            <table id ="idoudata">
+                <tr>
+                    <th>ID</th>
+                    <th>金額</th>
+                    <th>移動元</th>
+                    <th>移動先</th>
+                    <th>コメント</th>
+                    <th>日付</th>
+                </tr>
+            </table>
+        </div>
         <script src="./sub/index.js"></script>
         <script src="./sub/sql.js"></script>
     </body>

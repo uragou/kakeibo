@@ -9,6 +9,18 @@ h2{
     width: 80%;
 }
 
+.tableset{
+    position: relative;
+    background-color: #00BFFF;
+}
+
+h5{
+    position: absolute;
+    font-size: 18px;
+    margin: 5px auto;
+    width: 256px;
+}
+
 table{
     background-color:white;
     margin: 10px;
@@ -31,19 +43,31 @@ td{
     
 }
 
+#okuru{
+    background-color: #00BFFF;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+#sqlsend{
+    margin: 15px auto;
+}
+
 #nowdata{
-    width: 50%;
-    margin: 5px auto;
+    width: 512px;
+    margin: 15px auto;
     
 }
 
 #zougendata{
-    width: 70%;
-    margin: 8px auto;
-    
+    position: relative;
+    width: 1024px;
+    margin: 20px auto;
 }
 
 #idoudata{
-    width: 70%;
-    margin: 8px auto;
+    width: 1024px;
+    margin: 20px auto;
 }
