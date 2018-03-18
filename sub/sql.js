@@ -18,10 +18,8 @@ function bsql(name,num){
     nametd.textContent = name;
     num = changekane(num);
     kanetd.textContent = num;
-
-    fragment.appendChild(tr)
-    fragment.appendChild(nametd);
-    fragment.appendChild(kanetd);
+    fragment.appendChild(tr).appendChild(nametd);
+    fragment.appendChild(tr).appendChild(kanetd);
     nowdatajs.appendChild(fragment);
 }
 
@@ -36,6 +34,12 @@ function zougensql(id,bunrui,basyo,kane,syurui,komento,time){
     let syuruitd = document.createElement("td");
     let komentotd = document.createElement("td");
     let timetd = document.createElement("td");
+
+    if(bunrui == "収入"){
+        tr.setAttribute("class","ikane");
+    }else{
+        tr.setAttribute("class","okane");
+    }
     kanetd.setAttribute("class","kane");
     idtd.textContent = id;
     bunruitd.textContent = bunrui;
@@ -45,14 +49,13 @@ function zougensql(id,bunrui,basyo,kane,syurui,komento,time){
     syuruitd.textContent = syurui;
     komentotd.innerHTML = komento;
     timetd.textContent = time;
-    fragment.appendChild(tr)
-    fragment.appendChild(idtd);
-    fragment.appendChild(bunruitd);
-    fragment.appendChild(basyotd);
-    fragment.appendChild(kanetd);
-    fragment.appendChild(syuruitd);
-    fragment.appendChild(komentotd);
-    fragment.appendChild(timetd);
+    fragment.appendChild(tr).appendChild(idtd);
+    fragment.appendChild(tr).appendChild(bunruitd);
+    fragment.appendChild(tr).appendChild(basyotd);
+    fragment.appendChild(tr).appendChild(kanetd);
+    fragment.appendChild(tr).appendChild(syuruitd);
+    fragment.appendChild(tr).appendChild(komentotd);
+    fragment.appendChild(tr).appendChild(timetd);
     zougendatajs.appendChild(fragment);
 }
 
@@ -74,13 +77,12 @@ function idousql(id,kane,mae,ato,komento,time){
     atotd.textContent = ato;
     komentotd.innerHTML = komento;
     timetd.textContent = time;
-    fragment.appendChild(tr)
-    fragment.appendChild(idtd);
-    fragment.appendChild(kanetd);
-    fragment.appendChild(maetd);
-    fragment.appendChild(atotd);
-    fragment.appendChild(komentotd);
-    fragment.appendChild(timetd);
+    fragment.appendChild(tr).appendChild(idtd);
+    fragment.appendChild(tr).appendChild(maetd);
+    fragment.appendChild(tr).appendChild(atotd);
+    fragment.appendChild(tr).appendChild(kanetd);
+    fragment.appendChild(tr).appendChild(komentotd);
+    fragment.appendChild(tr).appendChild(timetd);
     idoudatajs.appendChild(fragment);
 }
 
