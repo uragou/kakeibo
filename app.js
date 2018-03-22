@@ -30,8 +30,6 @@ let connection = mysql.createConnection(dbConfig);
 connection.connect();
 init();
 
-//http://m-miya.blog.jp/archives/1035999721.html
-
 //QUOTEにより変なデータがSQLにいかないようにできるが、連続の"""だと失敗(データは挿入されない)
 
 function forHTML(data){
@@ -50,10 +48,12 @@ function forHTML(data){
 }
 
 //テーブルがあるかどうか作成
+//というより、月日が変わった時の処理
 function init(){
     connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         if(err){
             CreateTable();
+            UpdateTables();
         }
     });
 }
@@ -317,4 +317,22 @@ function CreateTable(){
     }
     console.log("作成終了");
     
+}
+
+function UpdateTables(){
+    let query = "SELECT * FROM zaisan;";
+    connection.query(query, function (err, results) {
+        //console.log('--- results ---');
+        //console.log(results);
+        for(let lop=0; lop < results.length ;lop++){
+            AddData("INSERT INTO zaihistory (zaisanID,name,kane,time) VALUES( "+ results[lop].id +",'"+results[lop].name+"',"+results[lop].kane+",DATE(NOW()) );");
+        }
+    });
+}
+
+function AddData(NewData){
+    console.log(NewData);
+    connection.query(NewData, function (err, results) {
+        console.log(err);
+    });
 }
