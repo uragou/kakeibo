@@ -3,9 +3,15 @@ let buntrijs = document.getElementById('bunrui');
 let okurujs = document.getElementById('okuru');
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
 buntrijs.addEventListener("change",SorS,false);
-
+//Mywindow.("oncancel",test,false);
+//window.addEventListener("onbeforeunload",test,false);
 SorS(event);
 
+//location.href = "/sub/index.js"
+
+function test(){
+    window.alert('実行しますか？');
+}
 function SorS(event){
     //event.preventDefault();
     let naiyoujs = document.getElementById("naiyou");

@@ -9,6 +9,9 @@ server.listen(port, function(){
 });
 let date = new Date();
 let hdate = "";
+let NowMaxzougen;
+let NowMaxidou;
+//SELECT * FROM zougen201803 WHERE id < 35 ORDER BY id DESC LIMIT 10;
 
 if(date.getMonth()+1 < 10){
     hdate = date.getFullYear()+'0'+ (date.getMonth()+1) ;
@@ -261,7 +264,7 @@ function sqladd(path,res,data){
     connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
-
+        NowMaxzougen = results[0].id;
         res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
         res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
@@ -284,7 +287,7 @@ function sqladd(path,res,data){
     connection.query('SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
-
+        NowMaxidou = results[0].id;
         res.write ("\n let idouid =[]; \n let idoukane =[];\n let idoumae =[];");
         res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
         for(let lop=0; lop < results.length ;lop++){

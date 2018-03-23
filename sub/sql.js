@@ -89,15 +89,10 @@ function idousql(id,kane,mae,ato,komento,time){
 function changekane(num){
     var anum = "";
     let lop = 3;
-    console.log("----------------");
-    console.log(num);
-    console.log(num.length);
     anum = num + "";
     while(lop< anum.length){
         anum = anum.substr(0,anum.length - lop) + "," + anum.substr(-1*lop);
-        console.log(anum);
         lop+=4;
     }
-    console.log(anum);
     return anum;
 }
