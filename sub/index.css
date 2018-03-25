@@ -42,7 +42,9 @@ td{
 
 .tableset{
     position: relative;
+    margin: 
     height: 350px;
+    width: 1000px;
 }
 
 .tableOther{
@@ -73,14 +75,14 @@ td{
     position: relative;
     table-layout: fixed;
     margin: 15px auto;
-    width: 950px;
+    width: 900px;
 }
 
 #idoudata{
     background-color: #9AF3D2;
     position: relative;
     margin: 15px auto;
-    width: 950px;
+    width: 900px;
 }
 
 #okuru{
@@ -99,4 +101,48 @@ td{
     width: 500px;
     margin: 15px auto;
     
+}
+
+#idouup{
+    position: absolute;
+    top:50%;
+    left:5px;
+    background-color: #00BFFF;
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#idouback{
+    position: absolute;
+    top:50%;
+    right:5px;
+    background-color: #00BFFF;
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#zougenup{
+    position: absolute;
+    top:50%;
+    left:5px;
+    background-color: #00BFFF;
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#zougenback{
+    position: absolute;
+    top:50%;
+    right:5px;
+    background-color: #00BFFF;
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
 }

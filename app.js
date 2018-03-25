@@ -79,6 +79,9 @@ function getdata(req,res){
         }else if(req.url == "/sub/sql.js"){
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/sql.js",res);
+        }else if(req.url == "/sub/async.js"){
+            res.writeHead(200,{"Content-Type": "text/javascript"});
+            Sfile("./sub/async.js",res);
         }else if(req.url == "/sub/index.css"){
             res.writeHead(200,{"Content-Type": "text/css"});
             Sfile("./sub/index.css",res);
@@ -95,7 +98,6 @@ function getdata(req,res){
     }else if(req.method == "POST"){
         //上の統合しようよ
         postshori(req,res);
-        Sfile("./index.html",res);
     }
 
 }
@@ -107,69 +109,76 @@ function postshori(req,res){
         postdata += data;
     });
     req.on("end",function(){
-        console.log(bunkatu);
-        bunkatu=postdata.split("&");
+        if(postdata.substr(0,4) == "ajax"){
+            console.log("aaaaaaa");
+            Sfile("./sub/sql.js",res);
+        }else{
+            console.log(bunkatu);
+            bunkatu=postdata.split("&");
 
-        for(let lop=0;lop<bunkatu.length;lop++){
-            let bunkatuiti,taisyo = "";
-            //長いほうのデコードだと特殊記号も変換できる
-            //ただし半角スペースが+になったからreplace
-            //data = data.replace(/</g,'&lt;');
-            bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
-            taisyo = decodeURIComponent(bunkatu[lop]);
-            bunkatuiti = taisyo.indexOf("=");
-            //そのままだと = も含まれた
-            bunkatu[lop] = taisyo.substr(bunkatuiti+1);
-        }
-        // bunkatu[0]は分類
-        if( bunkatu[0] == "移動"){
-            if(bunkatu[2] != bunkatu[3]){
-                zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+            for(let lop=0;lop<bunkatu.length;lop++){
+                let bunkatuiti,taisyo = "";
+                //長いほうのデコードだと特殊記号も変換できる
+                //ただし半角スペースが+になったからreplace
+                //data = data.replace(/</g,'&lt;');
+                bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
+                taisyo = decodeURIComponent(bunkatu[lop]);
+                bunkatuiti = taisyo.indexOf("=");
+                //そのままだと = も含まれた
+                bunkatu[lop] = taisyo.substr(bunkatuiti+1);
+            }
+            // bunkatu[0]は分類
+            if( bunkatu[0] == "移動"){
+                if(bunkatu[2] != bunkatu[3]){
+                    zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+                        resolve =>{
+                            console.log(resolve);
+                            return zaisanAdd("in",bunkatu[3],bunkatu[1]);
+                        },
+                        reject => {
+                            console.log(reject);
+                        }
+
+                    ).then(
+                        resolve =>{
+                            console.log(resolve);
+                            idouadd(bunkatu);
+                        },
+                        reject => {
+                            console.log(reject);
+                        }
+
+                    );
+                }else{
+                    console.log("同じじゃん");
+                }
+            }else{
+                var send = "";
+                if(bunkatu[0] == "収入"){
+                    send = "in";
+                }else{
+                    send = "out";
+                }
+
+                zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
+                    //アロー演算子ってマジで何なんだよ
                     resolve =>{
                         console.log(resolve);
-                        return zaisanAdd("in",bunkatu[3],bunkatu[1]);
-                    },
-                    reject => {
-                        console.log(reject);
-                    }
-
-                ).then(
-                    resolve =>{
-                        console.log(resolve);
-                        idouadd(bunkatu);
+                        zougenAdd(bunkatu);
                     },
                     reject => {
                         console.log(reject);
                     }
 
                 );
-            }else{
-                console.log("同じじゃん");
-            }
-        }else{
-            var send = "";
-            if(bunkatu[0] == "収入"){
-                send = "in";
-            }else{
-                send = "out";
             }
 
-            zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
-                //アロー演算子ってマジで何なんだよ
-                resolve =>{
-                    console.log(resolve);
-                    zougenAdd(bunkatu);
-                },
-                reject => {
-                    console.log(reject);
-                }
-
-            );
+            console.log(postdata);
+            console.log(bunkatu);
+            Sfile("./index.html",res);
         }
-
-        console.log(postdata);
-        console.log(bunkatu);
     });
+    
 }
 
 function zougenAdd(bunkatu){
