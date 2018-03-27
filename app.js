@@ -77,8 +77,7 @@ function getdata(req,res){
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/index.js",res);
         }else if(req.url == "/sub/sql.js"){
-            res.writeHead(200,{"Content-Type": "text/javascript"});
-            Sfile("./sub/sql.js",res);
+            SQLfile("./sub/sql.js",res,"default",0,"default");
         }else if(req.url == "/sub/async.js"){
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/async.js",res);
@@ -110,8 +109,10 @@ function postshori(req,res){
     });
     req.on("end",function(){
         if(postdata.substr(0,4) == "ajax"){
-            console.log("aaaaaaa");
-            Sfile("./sub/sql.js",res);
+            console.log(postdata);
+            let splitdata = postdata.split(",");
+            //----------------------------------------------------------------------
+            SQLfile("./sub/sql.js",res,splitdata[1],splitdata[2],splitdata[3]);
         }else{
             console.log(bunkatu);
             bunkatu=postdata.split("&");
@@ -239,14 +240,23 @@ function Sfile(path,res){
             console.log("------err------");
             console.log(err);
         }
-        if(path == "./sub/sql.js"){
-            sqladd(path,res,data);
-        }else{
-            res.end(data);
-        }
+        //./sub/sql.js 以外
+        res.end(data);
         console.log("転送");
     });
 }
+
+function SQLfile(path,res,code,id,vec){
+    fs.readFile(path,"UTF-8",function(err ,data){
+        if(err){
+            console.log("------err------");
+            console.log(err);
+        }
+        sqladd("./sub/sql.js",res,data,code,id,vec);
+        console.log("転送");
+    });
+}
+
 function BSfile(path,res){
     fs.readFile(path,function(err ,data){
         if(err){
@@ -258,7 +268,10 @@ function BSfile(path,res){
     });
 }
 
-function sqladd(path,res,data){
+function sqladd(path,res,data,code,id,vec){
+    //console.log("ここまで");
+    //console.log(code,id,vec);
+    res.writeHead(200,{"Content-Type": "text/javascript"});
     connection.query('SELECT name,kane FROM zaisan;', function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -270,9 +283,27 @@ function sqladd(path,res,data){
             res.write("\n num[" + lop + "] = " + results[lop].kane + ";");
         }
     });
-    connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
+    let ZougenQuery = "";
+    let IdouQuery = "";
+    if(vec === "down" && id - 10 > 0){
+        id = parseInt(id) - 10;
+    }else{
+        id = parseInt(id) + 10;
+    }
+
+    ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
+    IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;';
+    if(code === "idou"){
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
+    }else if(code === "zougen"){
+        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
+    }
+    //console.log(IdouQuery);
+    //console.log(ZougenQuery);
+
+    connection.query(ZougenQuery, function (err, results) {
         //console.log('--- results ---');
-        //console.log(results);
+        //sconsole.log(results);
         NowMaxzougen = results[0].id;
         res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
         res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
@@ -293,7 +324,7 @@ function sqladd(path,res,data){
             res.write("\n zoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
         }
     });
-    connection.query('SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
+    connection.query(IdouQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
         NowMaxidou = results[0].id;
