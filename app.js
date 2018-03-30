@@ -101,6 +101,109 @@ function getdata(req,res){
 
 }
 
+function SQLjson(path,res,data,code,id,vec){
+    //console.log("ここまで");
+    //console.log(code,id,vec);
+    res.writeHead(200,{"Content-Type": "text/json"});
+
+    connection.query('SELECT name,kane FROM zaisan;', function (err, results) {
+        var Jdata = new Object();
+        Jdata.zougen = [];
+        for(let lop=0; lop < results.length ;lop++){
+            Jdata.zougen[lop] = {
+                "name" : results[lop].name,
+                "num" : results[lop].kane
+            }
+        }
+        console.log(Jdata);
+        Jdata = JSON.stringify(Jdata);
+        console.log(Jdata);
+
+        var test = {
+            "zougen" : [
+                {
+                    "name" : results[0].name,
+                    "num" : results[0].kane
+                },
+                {
+                    "name" : results[1].name,
+                    "num" : results[1].kane
+                }
+            ]
+        }
+        test = JSON.stringify(test);
+        console.log(test);
+        //test の形にしたい なった
+    });
+
+    let ZougenQuery = "";
+    let IdouQuery = "";
+    if(vec === "down" && id - 10 > 0){
+        id = parseInt(id) - 10;
+    }else{
+        id = parseInt(id) + 10;
+    }
+
+    ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
+    IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;';
+    if(code === "idou"){
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
+    }else if(code === "zougen"){
+        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
+    }
+    //console.log(IdouQuery);
+    //console.log(ZougenQuery);
+
+    connection.query(ZougenQuery, function (err, results) {
+        //console.log('--- results ---');
+        //sconsole.log(results);
+        NowMaxzougen = results[0].id;
+        res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
+        res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
+        for(let lop=0; lop < results.length ;lop++){
+            res.write("\n zouid[" + lop + "] = \"" + results[lop].id + "\";");
+            res.write("\n zoubunrui[" + lop + "] = \"" + results[lop].bunrui + "\";");
+            res.write("\n zoubasyo[" + lop + "] = \"" + results[lop].basyo + "\";");
+            res.write("\n zoukane[" + lop + "] = " + results[lop].kane + ";");
+            res.write("\n zousyurui[" + lop + "] = \"" + results[lop].syurui + "\";");
+            if(!results[lop].komento){
+                res.write("\n zoukomento[" + lop + "] = \"\";");
+            }else{
+                let komentoHTML = forHTML(results[lop].komento);
+                res.write("\n zoukomento[" + lop + "] = \"" + komentoHTML + "\";");
+            }
+            //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
+            //console.log(results[lop].time);
+            res.write("\n zoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
+        }
+    });
+    connection.query(IdouQuery, function (err, results) {
+        //console.log('--- results ---');
+        //console.log(results);
+        NowMaxidou = results[0].id;
+        res.write ("\n let idouid =[]; \n let idoukane =[];\n let idoumae =[];");
+        res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
+        for(let lop=0; lop < results.length ;lop++){
+            res.write("\n idouid[" + lop + "] = \"" + results[lop].id + "\";");
+            res.write("\n idoukane[" + lop + "] = " + results[lop].kane + ";");
+            res.write("\n idoumae[" + lop + "] = \"" + results[lop].mae + "\";");
+            res.write("\n idouato[" + lop + "] = \"" + results[lop].ato + "\";");
+            if(!results[lop].komento){
+                res.write("\n idoukomento[" + lop + "] = \"\";");
+            }else{
+                let komentoHTML = forHTML(results[lop].komento);
+                res.write("\n idoukomento[" + lop + "] = \"" + komentoHTML + "\";");
+            }
+            //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
+            //console.log(results[lop].time);
+            res.write("\n idoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
+        }
+        res.write(data);
+        res.end();
+    });
+}
+
+
 function postshori(req,res){
     var postdata="";
     let bunkatu = [];
@@ -112,7 +215,7 @@ function postshori(req,res){
             console.log(postdata);
             let splitdata = postdata.split(",");
             //----------------------------------------------------------------------
-            SQLfile("./sub/sql.js",res,splitdata[1],splitdata[2],splitdata[3]);
+            SQLjson("./sub/sql.js",res,splitdata[1],splitdata[2],splitdata[3]);
         }else{
             console.log(bunkatu);
             bunkatu=postdata.split("&");

@@ -14,7 +14,6 @@ ajax.addEventListener("load",function(ev){
     if(ajax.readyState === 4 && ajax.status === 200){
         console.log(ajax.response);
         //ここに結果が来ている
-        location.reload();
     }
 });
 
