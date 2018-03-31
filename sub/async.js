@@ -1,4 +1,5 @@
 let ajax = new XMLHttpRequest();
+let body = document.getElementById("body");
 //ajax用のやつを作った。
 let leftidou = document.getElementById("idouup");
 let rightidou = document.getElementById("idouback");
@@ -15,6 +16,17 @@ ajax.addEventListener("load",function(ev){
         console.log(ajax.response);
         //ここに結果が来ている
     }
+});
+
+function init(){
+    ajax.open('POST','/sub/Sdata.json' , true);
+    ajax.send("default");
+};
+
+
+leftidou.addEventListener("click",function(ev){
+    ajax.open('POST','/sub/Sdata.json' , true);
+    ajax.send("ajax,idou," + idouid[0] + ",up");
 });
 
 leftidou.addEventListener("click",function(ev){

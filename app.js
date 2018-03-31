@@ -192,7 +192,7 @@ function postshori(req,res){
         postdata += data;
     });
     req.on("end",function(){
-        if(postdata.substr(0,4) == "ajax"){
+        if(postdata.substr(0,4) == "ajax" || postdata == "default"){
             console.log(postdata);
             let splitdata = postdata.split(",");
             //----------------------------------------------------------------------
