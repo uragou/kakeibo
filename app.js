@@ -104,36 +104,20 @@ function getdata(req,res){
 function SQLjson(path,res,data,code,id,vec){
     //console.log("ここまで");
     //console.log(code,id,vec);
-    res.writeHead(200,{"Content-Type": "text/json"});
-
+    res.writeHead(200,{"Content-Type": "application/json"});
+    var Json =  {
+        "Jnum" : 0
+    }
     connection.query('SELECT name,kane FROM zaisan;', function (err, results) {
         var Jdata = new Object();
-        Jdata.zougen = [];
+        Jdata.zaisan = [];
         for(let lop=0; lop < results.length ;lop++){
-            Jdata.zougen[lop] = {
+            Jdata.zaisan[lop] = {
                 "name" : results[lop].name,
                 "num" : results[lop].kane
             }
         }
-        console.log(Jdata);
-        Jdata = JSON.stringify(Jdata);
-        console.log(Jdata);
-
-        var test = {
-            "zougen" : [
-                {
-                    "name" : results[0].name,
-                    "num" : results[0].kane
-                },
-                {
-                    "name" : results[1].name,
-                    "num" : results[1].kane
-                }
-            ]
-        }
-        test = JSON.stringify(test);
-        console.log(test);
-        //test の形にしたい なった
+        Object.assign(Json,Jdata);
     });
 
     let ZougenQuery = "";
@@ -143,62 +127,59 @@ function SQLjson(path,res,data,code,id,vec){
     }else{
         id = parseInt(id) + 10;
     }
-
     ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
     IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;';
+
     if(code === "idou"){
         IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
     }else if(code === "zougen"){
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
     }
-    //console.log(IdouQuery);
-    //console.log(ZougenQuery);
+
 
     connection.query(ZougenQuery, function (err, results) {
         //console.log('--- results ---');
         //sconsole.log(results);
+        var Jdata = new Object();
+        Jdata.zougen=[];
         NowMaxzougen = results[0].id;
-        res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
-        res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
-            res.write("\n zouid[" + lop + "] = \"" + results[lop].id + "\";");
-            res.write("\n zoubunrui[" + lop + "] = \"" + results[lop].bunrui + "\";");
-            res.write("\n zoubasyo[" + lop + "] = \"" + results[lop].basyo + "\";");
-            res.write("\n zoukane[" + lop + "] = " + results[lop].kane + ";");
-            res.write("\n zousyurui[" + lop + "] = \"" + results[lop].syurui + "\";");
-            if(!results[lop].komento){
-                res.write("\n zoukomento[" + lop + "] = \"\";");
-            }else{
-                let komentoHTML = forHTML(results[lop].komento);
-                res.write("\n zoukomento[" + lop + "] = \"" + komentoHTML + "\";");
+            let komentoHTML = forHTML(results[lop].komento);
+            let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
+            Jdata.zougen[lop] = {
+                "zouid" : results[lop].id,
+                "zoubunrui" : results[lop].bunrui,
+                "zoubasyo" : results[lop].basyo,
+                "zoukane" : results[lop].kane,
+                "zousyurui" : results[lop].syurui,
+                "zoukomento" : komentoHTML,
+                "zoutime" : jikan
             }
-            //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
-            //console.log(results[lop].time);
-            res.write("\n zoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
         }
+        Object.assign(Json,Jdata);
     });
     connection.query(IdouQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
+        var Jdata = new Object();
+        Jdata.idou = [];
         NowMaxidou = results[0].id;
-        res.write ("\n let idouid =[]; \n let idoukane =[];\n let idoumae =[];");
-        res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
-            res.write("\n idouid[" + lop + "] = \"" + results[lop].id + "\";");
-            res.write("\n idoukane[" + lop + "] = " + results[lop].kane + ";");
-            res.write("\n idoumae[" + lop + "] = \"" + results[lop].mae + "\";");
-            res.write("\n idouato[" + lop + "] = \"" + results[lop].ato + "\";");
-            if(!results[lop].komento){
-                res.write("\n idoukomento[" + lop + "] = \"\";");
-            }else{
-                let komentoHTML = forHTML(results[lop].komento);
-                res.write("\n idoukomento[" + lop + "] = \"" + komentoHTML + "\";");
+            let komentoHTML = forHTML(results[lop].komento);
+            let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
+            Jdata.idou[lop] = {
+                "idouid" : results[lop].id,
+                "idoumae" : results[lop].mae,
+                "idouato" : results[lop].ato,
+                "idoukane" : results[lop].kane,
+                "idoukomento" : komentoHTML,
+                "idoutime" : jikan
             }
-            //何故かデータベースの値と家計簿に送った値の2つとは異なる日付になっている？
-            //console.log(results[lop].time);
-            res.write("\n idoutime[" + lop + "] = \"" + results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日" + "\";");
         }
-        res.write(data);
+        Object.assign(Json,Jdata);
+        console.log("最終結果");
+        Json = JSON.stringify(Json);
+        res.write(Json);
         res.end();
     });
 }
@@ -215,7 +196,7 @@ function postshori(req,res){
             console.log(postdata);
             let splitdata = postdata.split(",");
             //----------------------------------------------------------------------
-            SQLjson("./sub/sql.js",res,splitdata[1],splitdata[2],splitdata[3]);
+            SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3]);
         }else{
             console.log(bunkatu);
             bunkatu=postdata.split("&");
@@ -237,22 +218,22 @@ function postshori(req,res){
                     zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
                         resolve =>{
                             console.log(resolve);
-                            return zaisanAdd("in",bunkatu[3],bunkatu[1]);
+                            zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
+                                resolve =>{
+                                    console.log(resolve);
+                                    idouadd(bunkatu);
+                                },
+                                reject => {
+                                    console.log(reject);
+                                }
+        
+                            );
                         },
                         reject => {
                             console.log(reject);
                         }
 
-                    ).then(
-                        resolve =>{
-                            console.log(resolve);
-                            idouadd(bunkatu);
-                        },
-                        reject => {
-                            console.log(reject);
-                        }
-
-                    );
+                    )
                 }else{
                     console.log("同じじゃん");
                 }
@@ -406,8 +387,11 @@ function sqladd(path,res,data,code,id,vec){
 
     connection.query(ZougenQuery, function (err, results) {
         //console.log('--- results ---');
-        //sconsole.log(results);
-        NowMaxzougen = results[0].id;
+        if(Object.keys(results).length === 0){
+            NowMaxzougen = 0;
+        }else{
+            NowMaxzougen = results[0].id;
+        }
         res.write ("\n let zouid =[]; \n let zoubunrui =[];\n let zoubasyo =[];\n let zoukane =[];");
         res.write ("\n let zousyurui =[]; \n let zoukomento =[];\n let zoutime =[];");
         for(let lop=0; lop < results.length ;lop++){
@@ -430,7 +414,12 @@ function sqladd(path,res,data,code,id,vec){
     connection.query(IdouQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
-        NowMaxidou = results[0].id;
+        
+        if(Object.keys(results).length === 0){
+            NowMaxidou = 0;
+        }else{
+            NowMaxidou = results[0].id;
+        }
         res.write ("\n let idouid =[]; \n let idoukane =[];\n let idoumae =[];");
         res.write ("\n let idouato =[]; \n let idoukomento =[];\n let idoutime =[];");
         for(let lop=0; lop < results.length ;lop++){

@@ -18,24 +18,24 @@ ajax.addEventListener("load",function(ev){
 });
 
 leftidou.addEventListener("click",function(ev){
-    ajax.open('POST','/sub/sql.js' , true);
+    ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,idou," + idouid[0] + ",up");
 });
 
 rightidou.addEventListener("click",function(ev){
-    ajax.open('POST','/sub/sql.js' , true);
+    ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,idou," + idouid[0] + ",down");
 });
 
 
 leftzougen.addEventListener("click",function(ev){
-    ajax.open('POST','/sub/sql.js' , true);
+    ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,zougen," + zouid[0] + ",up");
 });
 
 
 rightzougen.addEventListener("click",function(ev){
-    ajax.open('POST','/sub/sql.js' , true);
+    ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,zougen," + zouid[0] + ",down");
 });
 
