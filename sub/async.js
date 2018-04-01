@@ -29,9 +29,9 @@ function init(){
 };
 
 
-leftidou.addEventListener("click",function(ev){
+rightidou.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,idou," + idouvalue + ",up");
+    ajax.send("ajax,idou," + idouvalue + ",down");
 });
 
 leftidou.addEventListener("click",function(ev){
@@ -41,7 +41,7 @@ leftidou.addEventListener("click",function(ev){
 
 rightzougen.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,idou," + zougenvalue + ",down");
+    ajax.send("ajax,zougen," + zougenvalue + ",down");
 });
 
 
@@ -51,18 +51,73 @@ leftzougen.addEventListener("click",function(ev){
 });
 
 
-rightzougen.addEventListener("click",function(ev){
-    ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,zougen," + zouid[0] + ",down");
-});
-
-
 
 function SQLfunc(JsonData){
     let zougendatajs = document.getElementById("zougendata");
     let idoudatajs = document.getElementById("idoudata");
     let nowdatajs = document.getElementById("nowdata");
- 
+    nowdatajs.innerHTML = "";
+    zougendatajs.innerHTML = "";
+    idoudatajs.innerHTML = "";
+
+    let nowfrag = document.createDocumentFragment();
+    let nowhead = document.createElement("thead");
+    let nowtr = document.createElement("tr");
+
+    let zoufrag = document.createDocumentFragment();
+    let zouhead = document.createElement("thead");
+    let zoutr = document.createElement("tr");
+
+    let idoufrag = document.createDocumentFragment();
+    let idouhead = document.createElement("thead");
+    let idoutr = document.createElement("tr");
+
+    let zaicel = ["保管場所","金額"];
+    let zoucel = ["ID","分類","場所","金額","種類","コメント","日付"];
+    let zouop = ["tableOther","tableOther","tableOther",
+                    "tablekane","tableHow","","tabelDate"];
+    let idoucel = ["ID","移動元","移動先","金額","コメント","日付"];
+    let idouop = ["tableOther","tableOther","tableOther",
+                    "tablekane","","tabelDate"];
+
+
+    for(let lop=0;lop<zaicel.length;lop++){
+        let celth = document.createElement("th");
+        celth.textContent = zaicel[lop];
+        nowfrag.appendChild(nowhead).appendChild(nowtr).appendChild(celth);
+    }
+    nowdatajs.appendChild(nowfrag);
+
+    for(let lop=0;lop<zoucel.length;lop++){
+        let celth = document.createElement("th");
+        celth.textContent = zoucel[lop];
+        celth.setAttribute("class",zouop[lop]);
+        zoufrag.appendChild(zouhead).appendChild(zoutr).appendChild(celth);
+    }
+    zougendatajs.appendChild(zoufrag);
+
+    for(let lop=0;lop<idoucel.length;lop++){
+        let celth = document.createElement("th");
+        celth.textContent = idoucel[lop];
+        celth.setAttribute("class",idouop[lop]);
+        idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
+    }
+    idoudatajs.appendChild(idoufrag);
+
+
+    /*
+    <thead>
+                    <tr>
+                        <th class="tableOther">ID</th>
+                        <th class="tableOther">移動元</th>
+                        <th class="tableOther">移動先</th>
+                        <th class="tablekane">金額</th>
+                        <th>コメント</th>
+                        <th class="tableDate">日付</th>
+                    </tr>
+                </thead>*/
+
+
     idouvalue = JsonData.idou[0].id;
     zougenvalue = JsonData.zougen[0].id;
     for(let lop=0;lop<JsonData.zougen.length;lop++){

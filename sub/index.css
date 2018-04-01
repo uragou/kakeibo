@@ -14,7 +14,6 @@ h2{
 
 h5{
     position: absolute;
-    top: 150px;
     font-size: 1.5rem;
     width: 15vw;
 }
@@ -42,7 +41,7 @@ td{
 
 .tableset{
     position: relative;
-    margin: 
+    margin: auto;
     height: 350px;
     width: 1000px;
 }
@@ -105,44 +104,44 @@ td{
 
 #idouup{
     position: absolute;
-    top:50%;
+    width: 40px;
+    height: 100px;
+    top:35%;
     left:5px;
     background-color: #00BFFF;
-    color: white;
-    border-radius: 20px;
-    font-size: 14px;
+    color: white; 
     cursor: pointer;
 }
 
 #idouback{
     position: absolute;
-    top:50%;
+    width: 40px;
+    height: 100px;
+    top:35%;
     right:5px;
     background-color: #00BFFF;
-    color: white;
-    border-radius: 20px;
-    font-size: 14px;
+    color: white; 
     cursor: pointer;
 }
 
 #zougenup{
     position: absolute;
-    top:50%;
+    width: 40px;
+    height: 100px;
+    top:35%;
     left:5px;
     background-color: #00BFFF;
-    color: white;
-    border-radius: 20px;
-    font-size: 14px;
+    color: white; 
     cursor: pointer;
 }
 
 #zougenback{
-    position: absolute;
-    top:50%;
+     position: absolute;
+    width: 40px;
+    height: 100px;
+    top:35%;
     right:5px;
     background-color: #00BFFF;
-    color: white;
-    border-radius: 20px;
-    font-size: 14px;
+    color: white; 
     cursor: pointer;
 }

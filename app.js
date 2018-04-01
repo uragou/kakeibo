@@ -99,9 +99,9 @@ function getdata(req,res){
 
 }
 
-function SQLjson(path,res,data,code,id,vec){
+function SQLjson(path,res,code,id,vec){
     //console.log("ここまで");
-    //console.log(code,id,vec);
+    console.log(code,id,vec);
     res.writeHead(200,{"Content-Type": "application/json"});
     var Json =  {
         "status" : "default" 
@@ -122,7 +122,8 @@ function SQLjson(path,res,data,code,id,vec){
     let IdouQuery = "";
     if(vec === "down" && id - 10 > 0){
         id = parseInt(id) - 10;
-    }else{
+    }else if(vec === "up"){
+        //プラス方向はどうせWHEREだから大丈夫
         id = parseInt(id) + 10;
     }
     ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
@@ -190,10 +191,11 @@ function postshori(req,res){
         postdata += data;
     });
     req.on("end",function(){
-        if(postdata.substr(0,4) == "ajax" || postdata == "default"){
-            console.log(postdata);
+        console.log(postdata);
+        if (postdata === "default"){
+            SQLjson("./sub/Sdata.json",res,"default",0,"default");
+        }else if(postdata.substr(0,4) === "ajax"){
             let splitdata = postdata.split(",");
-            //----------------------------------------------------------------------
             SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3]);
         }else{
             console.log(bunkatu);
