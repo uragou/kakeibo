@@ -1,26 +1,54 @@
-html{
-}
-
 body{
     background-image: url("back.png");
     text-align: center;
 }
 
-h2{
-    background-color:white;
-    margin: 5px auto;
-    width: 80%;
+a{
+    margin: auto 50px;
+}
+
+a:-webkit-any-link{
+    color: white;
+    text-decoration: none;
+}
+
+header{
+    position: fixed;
+    font-size: 20px;
+    font-weight:700;
+    color: white;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    margin: 0px;
+    padding: 0px;
+    background-color:#4B610B;
+}
+
+ul{
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+}
+li{
+    display: inline-block;
 }
 
 h5{
     position: absolute;
-    font-size: 1.5rem;
-    width: 15vw;
+    font-size: 3rem;
+    text-align: initial;
+    color: gray;
+    width: 30vw;
+    z-index: 2;
+    bottom: 220px;
+    opacity: 0.35;
 }
 
 table{
     margin: 10px;
     border-collapse: collapse;
+    z-index: 1;
 }
 
 th{
@@ -34,6 +62,7 @@ td{
     padding: 2px 5px;
     border-style: groove;
 }
+
 
 .kane{
     text-align: right; 
@@ -70,16 +99,49 @@ td{
     background-color: #93C6F6;
 }
 
+
+.ajaxlbtn{
+    position: absolute;
+    width: 40px;
+    height: 150px;
+    background-color: #00BFFF;
+    color: white; 
+    cursor: pointer;
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+    margin: auto;
+    outline: none;
+}
+.ajaxrbtn{
+    position: absolute;
+    width: 40px;
+    height: 150px;
+    background-color: rgb(238, 70, 121);
+    color: white; 
+    cursor: pointer;
+    border-top-right-radius: 40px;
+    border-bottom-right-radius: 40px;
+    margin: auto;
+    outline: none;
+}
+
+#daimei{
+    background-color:#868A08;
+    padding: auto 115px;
+}
+
 #zougendata{
     position: relative;
     table-layout: fixed;
     margin: 15px auto;
     width: 900px;
+
 }
 
 #idoudata{
     background-color: #9AF3D2;
     position: relative;
+    table-layout: fixed;
     margin: 15px auto;
     width: 900px;
 }
@@ -90,58 +152,44 @@ td{
     border-radius: 20px;
     font-size: 14px;
     cursor: pointer;
+    outline: none;
 }
 
 #sqlsend{
-    margin: 15px auto;
+    position: relative;
+    margin: 50px auto 15px;
+    font-weight:700;
+    width: 1000px;
+    background-color: #9AF3D2;
 }
 
 #nowdata{
     width: 500px;
+    margin: auto;
+}
+
+#nowcel{
+    position: relative;
+    width: 1000px;
     margin: 15px auto;
-    
 }
 
 #idouup{
-    position: absolute;
-    width: 40px;
-    height: 100px;
     top:35%;
     left:5px;
-    background-color: #00BFFF;
-    color: white; 
-    cursor: pointer;
 }
 
 #idouback{
-    position: absolute;
-    width: 40px;
-    height: 100px;
     top:35%;
     right:5px;
-    background-color: #00BFFF;
-    color: white; 
-    cursor: pointer;
 }
 
 #zougenup{
-    position: absolute;
-    width: 40px;
-    height: 100px;
     top:35%;
     left:5px;
-    background-color: #00BFFF;
-    color: white; 
-    cursor: pointer;
 }
 
 #zougenback{
-     position: absolute;
-    width: 40px;
-    height: 100px;
     top:35%;
     right:5px;
-    background-color: #00BFFF;
-    color: white; 
-    cursor: pointer;
 }

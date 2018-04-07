@@ -75,10 +75,10 @@ function SQLfunc(JsonData){
     let zaicel = ["保管場所","金額"];
     let zoucel = ["ID","分類","場所","金額","種類","コメント","日付"];
     let zouop = ["tableOther","tableOther","tableOther",
-                    "tablekane","tableHow","","tabelDate"];
+                    "tablekane","tableHow","","tableDate"];
     let idoucel = ["ID","移動元","移動先","金額","コメント","日付"];
     let idouop = ["tableOther","tableOther","tableOther",
-                    "tablekane","","tabelDate"];
+                    "tablekane","","tableDate"];
 
 
     for(let lop=0;lop<zaicel.length;lop++){
