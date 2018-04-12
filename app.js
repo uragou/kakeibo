@@ -7,6 +7,10 @@ let server = http.createServer();
 server.listen(port, function(){
     console.log('listening on *:'+port);
 });
+
+
+//zaisan
+//zaihistory は自動で作られない
 let date = new Date();
 let hdate = "";
 let NowMaxzougen;
@@ -192,7 +196,10 @@ function postshori(req,res){
     });
     req.on("end",function(){
         console.log(postdata);
-        if (postdata === "default"){
+        if (postdata === "begin"){
+            res.writeHead(200,{"Content-Type": "application/json"});
+            Sfile("./sub/index.json",res);
+        }else if (postdata === "default"){
             SQLjson("./sub/Sdata.json",res,"default",0,"default");
         }else if(postdata.substr(0,4) === "ajax"){
             let splitdata = postdata.split(",");

@@ -24,7 +24,8 @@ ajax.addEventListener("load",function(ev){
 });
 
 function init(){
-    ajax.open('POST','/sub/Sdata.json' , true);
+    //非同期　false じゃないと連続で受け取れない
+    ajax.open('POST','/sub/Sdata.json' , false);
     ajax.send("default");
 };
 
@@ -103,20 +104,6 @@ function SQLfunc(JsonData){
         idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
     }
     idoudatajs.appendChild(idoufrag);
-
-
-    /*
-    <thead>
-                    <tr>
-                        <th class="tableOther">ID</th>
-                        <th class="tableOther">移動元</th>
-                        <th class="tableOther">移動先</th>
-                        <th class="tablekane">金額</th>
-                        <th>コメント</th>
-                        <th class="tableDate">日付</th>
-                    </tr>
-                </thead>*/
-
 
     idouvalue = JsonData.idou[0].id;
     zougenvalue = JsonData.zougen[0].id;

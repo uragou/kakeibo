@@ -1,4 +1,5 @@
-
+let begin = new XMLHttpRequest();
+let beginData;
 let buntrijs = document.getElementById('bunrui');
 let okurujs = document.getElementById('okuru');
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
@@ -8,10 +9,24 @@ buntrijs.addEventListener("change",SorS,false);
 SorS(event);
 
 //location.href = "/sub/index.js"
+begin.addEventListener("load",function(ev){
+    if(begin.readyState === 4 && begin.status === 200){
+        //console.log(ajax.response);
+        beginData = JSON.parse(begin.response);
+        if(beginData.status === "begin"){
+            console.log(beginData);
+        }
+        //ここに結果が来ている
+    }
+});
 
-function test(){
-    window.alert('実行しますか？');
-}
+function beginFunc(){
+    //非同期　false じゃないと連続で受け取れない
+    ajax.open('POST','/sub/index.json' , false);
+    ajax.send("default");
+};
+
+
 function SorS(event){
     //event.preventDefault();
     let naiyoujs = document.getElementById("naiyou");
@@ -40,7 +55,7 @@ function SorS(event){
         opts[7].setAttribute("value","通信費");
         opts[7].textContent="通信費";
         opts[8].setAttribute("value","インフラ");
-        opts[8].textContent="水道・電気・ガス";
+        opts[8].textContent="インフラ";
         opts[9].setAttribute("value","税金");
         opts[9].textContent="税金";
         opts[10].setAttribute("value","その他");
