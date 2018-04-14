@@ -11,44 +11,51 @@ var zougenvalue = 0;
 //console.log(idouid[0]);
 //loadイベントにてロードしたらイベントが起こる
 //openに内容を書いてsendで送る。
-ajax.addEventListener("load",function(ev){
+
+ajax.onloadend = function(){
     if(ajax.readyState === 4 && ajax.status === 200){
         //console.log(ajax.response);
         JsonData = JSON.parse(ajax.response);
-        if(JsonData.status === "default"){
-            console.log(JsonData);
+        console.log(JsonData);
+        if(JsonData.status === "default" || JsonData.status === "next"){
+            SQLfunc(JsonData);
+            if(JsonData.status === "default"){
+                //この結果はindex.jsで処理しよう
+                BeginFunc();
+            }
+        }else if(JsonData.status === "next"){
             SQLfunc(JsonData);
         }
         //ここに結果が来ている
     }
-});
+};
 
 function init(){
     //非同期　false じゃないと連続で受け取れない
-    ajax.open('POST','/sub/Sdata.json' , false);
+    ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("default");
 };
 
 
 rightidou.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,idou," + idouvalue + ",down");
+    ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",down");
 });
 
 leftidou.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,idou," + idouvalue + ",up");
+    ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",up");
 });
 
 rightzougen.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,zougen," + zougenvalue + ",down");
+    ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",down");
 });
 
 
 leftzougen.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,zougen," + zougenvalue + ",up");
+    ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",up");
 });
 
 

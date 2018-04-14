@@ -1,32 +1,29 @@
 let begin = new XMLHttpRequest();
-let beginData;
+let BData = "";
 let buntrijs = document.getElementById('bunrui');
 let okurujs = document.getElementById('okuru');
 //http://kakeibo.lucky-days.jp/interview/how-to-classify/guidance/
-buntrijs.addEventListener("change",SorS,false);
 //Mywindow.("oncancel",test,false);
 //window.addEventListener("onbeforeunload",test,false);
-SorS(event);
 
-//location.href = "/sub/index.js"
-begin.addEventListener("load",function(ev){
+begin.onloadend = function(){
     if(begin.readyState === 4 && begin.status === 200){
-        //console.log(ajax.response);
-        beginData = JSON.parse(begin.response);
-        if(beginData.status === "begin"){
-            console.log(beginData);
-        }
+        Bdata = JSON.parse(begin.response);
+        console.log(Bdata);
         //ここに結果が来ている
+        SorS(event);
+        buntrijs.addEventListener("change",SorS,false);
+        //jsonが来てからイベント登録
     }
-});
-
-function beginFunc(){
-    //非同期　false じゃないと連続で受け取れない
-    ajax.open('POST','/sub/index.json' , false);
-    ajax.send("default");
 };
 
+function BeginFunc(){
+    //非同期　false じゃないと連続で受け取れない
+    begin.open('POST','/sub/index.json' , true);
+    begin.send("begin");
+};
 
+//location.href = "/sub/index.js"
 function SorS(event){
     //event.preventDefault();
     let naiyoujs = document.getElementById("naiyou");
@@ -34,70 +31,33 @@ function SorS(event){
     naiyoujs.innerHTML="";
 
     if(this.value == "支出"){
-        var opts = new Array(11);
-        for(let lop = 0; lop< opts.length ; lop++){
+        var opts = new Array(Bdata.Bsisyutu.length);
+        for(let lop = 0; lop< Bdata.Bsisyutu.length ; lop++){
             opts[lop] = document.createElement("option");
-        }
-        opts[0].setAttribute("value","食費");
-        opts[0].textContent="食費";
-        opts[1].setAttribute("value","勉強費");
-        opts[1].textContent="勉強費";
-        opts[2].setAttribute("value","雑貨費");
-        opts[2].textContent="雑貨費";
-        opts[3].setAttribute("value","遊興費");
-        opts[3].textContent="遊興費";
-        opts[4].setAttribute("value","交通費");
-        opts[4].textContent="交通費";
-        opts[5].setAttribute("value","身だしなみ");
-        opts[5].textContent="身だしなみ";
-        opts[6].setAttribute("value","医療費");
-        opts[6].textContent="医療費";
-        opts[7].setAttribute("value","通信費");
-        opts[7].textContent="通信費";
-        opts[8].setAttribute("value","インフラ");
-        opts[8].textContent="インフラ";
-        opts[9].setAttribute("value","税金");
-        opts[9].textContent="税金";
-        opts[10].setAttribute("value","その他");
-        opts[10].textContent="その他";
-        for(let lop = 0; lop< opts.length ; lop++){
+            opts[lop].setAttribute("value",Bdata.Bsisyutu[lop]);
+            opts[lop].textContent=Bdata.Bsisyutu[lop];
             fragment.appendChild(opts[lop]);
         }
-
         Fromto(this.value);
 
     }else if(this.value == "移動"){
-        var opts = new Array(2);
-        for(let lop = 0; lop< opts.length ; lop++){
+        //Bidouは財産の種類でもある
+        var opts = new Array(Bdata.Bidou.length);
+        for(let lop = 0; lop< Bdata.Bidou.length ; lop++){
             opts[lop] = document.createElement("option");
-        }
-        opts[0].setAttribute("value","銀行");
-        opts[0].textContent="銀行";
-        opts[1].setAttribute("value","財布");
-        opts[1].textContent="財布";
-        for(let lop = 0; lop< opts.length ; lop++){
+            opts[lop].setAttribute("value",Bdata.Bidou[lop]);
+            opts[lop].textContent=Bdata.Bsyunyu[lop];
             fragment.appendChild(opts[lop]);
-        } 
+        }
         Fromto(this.value);
-        
     }else{
-        var opts = new Array(5);
-        for(let lop = 0; lop< opts.length ; lop++){
+        var opts = new Array(Bdata.Bsyunyu.length);
+        for(let lop = 0; lop< Bdata.Bsyunyu.length ; lop++){
             opts[lop] = document.createElement("option");
-        }
-        opts[0].setAttribute("value","給料");
-        opts[0].textContent="給料";
-        opts[1].setAttribute("value","不労所得");
-        opts[1].textContent="不労所得";
-        opts[2].setAttribute("value","賞金");
-        opts[2].textContent="賞金";
-        opts[3].setAttribute("value","お祝い金");
-        opts[3].textContent="お祝い金";
-        opts[4].setAttribute("value","その他");
-        opts[4].textContent="その他";
-        for(let lop = 0; lop< opts.length ; lop++){
+            opts[lop].setAttribute("value",Bdata.Bsyunyu[lop]);
+            opts[lop].textContent=Bdata.Bsyunyu[lop];
             fragment.appendChild(opts[lop]);
-        } 
+        }
         Fromto(this.value);
     }
     naiyoujs.appendChild(fragment);
@@ -106,6 +66,7 @@ function SorS(event){
 
 
 function Fromto(sentaku){
+
     let Select = document.createElement("select");
     let idoujs = document.getElementById("idou");
     let basyojs = document.getElementById("basyo");
@@ -123,18 +84,14 @@ function Fromto(sentaku){
         Select.setAttribute("id","doko");
     }
 
-    var opts = new Array(2);
-    for(let lop = 0; lop< opts.length ; lop++){
+    var opts = new Array(Bdata.Bidou.length);
+    for(let lop = 0; lop< Bdata.Bidou.length ; lop++){
         opts[lop] = document.createElement("option");
-    }
-    opts[0].setAttribute("value","銀行");
-    opts[0].textContent="銀行";
-    opts[1].setAttribute("value","財布");
-    opts[1].textContent="財布";
-    for(let lop = 0; lop< opts.length ; lop++){
+        opts[lop].setAttribute("value",Bdata.Bidou[lop]);
+        opts[lop].textContent=Bdata.Bsyunyu[lop];
         fragment.appendChild(opts[lop]);
-    } 
-
+    }
+    
     Select.appendChild(fragment);
 
     if(sentaku == "移動"){

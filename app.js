@@ -103,12 +103,19 @@ function getdata(req,res){
 
 }
 
-function SQLjson(path,res,code,id,vec){
+function SQLjson(path,res,code,zou,ido,vec){
     //console.log("ここまで");
-    console.log(code,id,vec);
+    console.log(code,zou,ido,vec);
     res.writeHead(200,{"Content-Type": "application/json"});
+    let Jstatus;
+    if(code === "default"){
+        Jstatus = "default";
+    }else{
+        Jstatus = "next";
+    }
+
     var Json =  {
-        "status" : "default" 
+        "status" : Jstatus
     }
     connection.query('SELECT name,kane FROM zaisan;', function (err, results) {
         var Jdata = new Object();
@@ -124,25 +131,33 @@ function SQLjson(path,res,code,id,vec){
 
     let ZougenQuery = "";
     let IdouQuery = "";
-    if(vec === "down" && id - 10 > 0){
-        id = parseInt(id) - 10;
-    }else if(vec === "up"){
-        //プラス方向はどうせWHEREだから大丈夫
-        id = parseInt(id) + 10;
+    if(code === "zougen"){
+        if(vec === "down" && zou - 10 > 0){
+            zou = parseInt(zou) - 10;
+        }else if(vec === "up"){
+            //プラス方向はどうせWHEREだから大丈夫
+            zou = parseInt(zou) + 10;
+        }
+    }else if(code === "idou"){
+        if(vec === "down" && ido - 10 > 0){
+            ido = parseInt(ido) - 10;
+        }else if(vec === "up"){
+            //プラス方向はどうせWHEREだから大丈夫
+            ido = parseInt(ido) + 10;
+        }
     }
-    ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
-    IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;';
-
-    if(code === "idou"){
-        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
-    }else if(code === "zougen"){
-        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ id +'  ORDER BY id DESC LIMIT 10';
+    
+    if(code === "default"){
+        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;';
+    }else{
+        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ zou +'  ORDER BY id DESC LIMIT 10';
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ ido +'  ORDER BY id DESC LIMIT 10';
     }
-
 
     connection.query(ZougenQuery, function (err, results) {
         //console.log('--- results ---');
-        //sconsole.log(results);
+        //console.log(results);
         var Jdata = new Object();
         Jdata.zougen=[];
         NowMaxzougen = results[0].id;
@@ -200,10 +215,10 @@ function postshori(req,res){
             res.writeHead(200,{"Content-Type": "application/json"});
             Sfile("./sub/index.json",res);
         }else if (postdata === "default"){
-            SQLjson("./sub/Sdata.json",res,"default",0,"default");
+            SQLjson("./sub/Sdata.json",res,"default",0,0,"default");
         }else if(postdata.substr(0,4) === "ajax"){
             let splitdata = postdata.split(",");
-            SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3]);
+            SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
         }else{
             console.log(bunkatu);
             bunkatu=postdata.split("&");

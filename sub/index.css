@@ -23,6 +23,7 @@ header{
     margin: 0px;
     padding: 0px;
     background-color:#4B610B;
+    z-index: 9999;
 }
 
 ul{
