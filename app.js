@@ -159,19 +159,24 @@ function SQLjson(path,res,code,zou,ido,vec){
         //console.log('--- results ---');
         //console.log(results);
         var Jdata = new Object();
-        Jdata.zougen=[];
-        NowMaxzougen = results[0].id;
-        for(let lop=0; lop < results.length ;lop++){
-            let komentoHTML = forHTML(results[lop].komento);
-            let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
-            Jdata.zougen[lop] = {
-                "id" : results[lop].id,
-                "bunrui" : results[lop].bunrui,
-                "basyo" : results[lop].basyo,
-                "kane" : results[lop].kane,
-                "syurui" : results[lop].syurui,
-                "komento" : komentoHTML,
-                "time" : jikan
+        //もしテーブルが空なら
+        if(results.length === 0){
+            Jdata.zougen = "今月のデータはありません";
+        }else{
+            Jdata.zougen=[];
+            NowMaxzougen = results[0].id;
+            for(let lop=0; lop < results.length ;lop++){
+                let komentoHTML = forHTML(results[lop].komento);
+                let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
+                Jdata.zougen[lop] = {
+                    "id" : results[lop].id,
+                    "bunrui" : results[lop].bunrui,
+                    "basyo" : results[lop].basyo,
+                    "kane" : results[lop].kane,
+                    "syurui" : results[lop].syurui,
+                    "komento" : komentoHTML,
+                    "time" : jikan
+                }
             }
         }
         Object.assign(Json,Jdata);
@@ -180,18 +185,23 @@ function SQLjson(path,res,code,zou,ido,vec){
         //console.log('--- results ---');
         //console.log(results);
         var Jdata = new Object();
-        Jdata.idou = [];
-        NowMaxidou = results[0].id;
-        for(let lop=0; lop < results.length ;lop++){
-            let komentoHTML = forHTML(results[lop].komento);
-            let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
-            Jdata.idou[lop] = {
-                "id" : results[lop].id,
-                "mae" : results[lop].mae,
-                "ato" : results[lop].ato,
-                "kane" : results[lop].kane,
-                "komento" : komentoHTML,
-                "time" : jikan
+        //もしテーブルが空なら
+        if(results.length === 0){
+            Jdata.idou = "今月のデータはありません";
+        }else{
+            Jdata.idou = [];
+            NowMaxidou = results[0].id;
+            for(let lop=0; lop < results.length ;lop++){
+                let komentoHTML = forHTML(results[lop].komento);
+                let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
+                Jdata.idou[lop] = {
+                    "id" : results[lop].id,
+                    "mae" : results[lop].mae,
+                    "ato" : results[lop].ato,
+                    "kane" : results[lop].kane,
+                    "komento" : komentoHTML,
+                    "time" : jikan
+                }
             }
         }
         Object.assign(Json,Jdata);

@@ -60,7 +60,9 @@ leftzougen.addEventListener("click",function(ev){
 
 
 
+
 function SQLfunc(JsonData){
+
     let zougendatajs = document.getElementById("zougendata");
     let idoudatajs = document.getElementById("idoudata");
     let nowdatajs = document.getElementById("nowdata");
@@ -96,99 +98,119 @@ function SQLfunc(JsonData){
     }
     nowdatajs.appendChild(nowfrag);
 
-    for(let lop=0;lop<zoucel.length;lop++){
-        let celth = document.createElement("th");
-        celth.textContent = zoucel[lop];
-        celth.setAttribute("class",zouop[lop]);
-        zoufrag.appendChild(zouhead).appendChild(zoutr).appendChild(celth);
-    }
-    zougendatajs.appendChild(zoufrag);
+    if(JsonData.zougen === "今月のデータはありません"){
 
-    for(let lop=0;lop<idoucel.length;lop++){
-        let celth = document.createElement("th");
-        celth.textContent = idoucel[lop];
-        celth.setAttribute("class",idouop[lop]);
-        idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
-    }
-    idoudatajs.appendChild(idoufrag);
+        let Nzougen = document.createElement("h1");
+        Nzougen.textContent = JsonData.zougen;
+        zougendatajs.appendChild(Nzougen);
+    }else{
 
-    idouvalue = JsonData.idou[0].id;
-    zougenvalue = JsonData.zougen[0].id;
-    for(let lop=0;lop<JsonData.zougen.length;lop++){
-
-        let fragment = document.createDocumentFragment();
-        let tr = document.createElement("tr");
-        let idtd = document.createElement("td");
-        let bunruitd = document.createElement("td");
-        let basyotd = document.createElement("td");
-        let kanetd = document.createElement("td");
-        let syuruitd = document.createElement("td");
-        let komentotd = document.createElement("td");
-        let timetd = document.createElement("td");
-
-        if(JsonData.zougen[lop].bunrui == "収入"){
-            tr.setAttribute("class","ikane");
-        }else{
-            tr.setAttribute("class","okane");
+        for(let lop=0;lop<zoucel.length;lop++){
+            let celth = document.createElement("th");
+            celth.textContent = zoucel[lop];
+            celth.setAttribute("class",zouop[lop]);
+            zoufrag.appendChild(zouhead).appendChild(zoutr).appendChild(celth);
         }
-        kanetd.setAttribute("class","kane");
-        idtd.textContent = JsonData.zougen[lop].id;
-        bunruitd.textContent = JsonData.zougen[lop].bunrui;
-        basyotd.textContent = JsonData.zougen[lop].basyo;
-        JsonData.zougen[lop].kane = changekane(JsonData.zougen[lop].kane);
-        kanetd.textContent = JsonData.zougen[lop].kane;
-        syuruitd.textContent = JsonData.zougen[lop].syurui;
-        komentotd.innerHTML = JsonData.zougen[lop].komento;
-        timetd.textContent = JsonData.zougen[lop].time;
-        fragment.appendChild(tr).appendChild(idtd);
-        fragment.appendChild(tr).appendChild(bunruitd);
-        fragment.appendChild(tr).appendChild(basyotd);
-        fragment.appendChild(tr).appendChild(kanetd);
-        fragment.appendChild(tr).appendChild(syuruitd);
-        fragment.appendChild(tr).appendChild(komentotd);
-        fragment.appendChild(tr).appendChild(timetd);
-        zougendatajs.appendChild(fragment);
+        zougendatajs.appendChild(zoufrag);
+
+        zougenvalue = JsonData.zougen[0].id;
+
+        for(let lop=0;lop<JsonData.zougen.length;lop++){
+
+            let fragment = document.createDocumentFragment();
+            let tr = document.createElement("tr");
+            let idtd = document.createElement("td");
+            let bunruitd = document.createElement("td");
+            let basyotd = document.createElement("td");
+            let kanetd = document.createElement("td");
+            let syuruitd = document.createElement("td");
+            let komentotd = document.createElement("td");
+            let timetd = document.createElement("td");
+
+            if(JsonData.zougen[lop].bunrui == "収入"){
+                tr.setAttribute("class","ikane");
+            }else{
+                tr.setAttribute("class","okane");
+            }
+            kanetd.setAttribute("class","kane");
+            idtd.textContent = JsonData.zougen[lop].id;
+            bunruitd.textContent = JsonData.zougen[lop].bunrui;
+            basyotd.textContent = JsonData.zougen[lop].basyo;
+            JsonData.zougen[lop].kane = changekane(JsonData.zougen[lop].kane);
+            kanetd.textContent = JsonData.zougen[lop].kane;
+            syuruitd.textContent = JsonData.zougen[lop].syurui;
+            komentotd.innerHTML = JsonData.zougen[lop].komento;
+            timetd.textContent = JsonData.zougen[lop].time;
+            fragment.appendChild(tr).appendChild(idtd);
+            fragment.appendChild(tr).appendChild(bunruitd);
+            fragment.appendChild(tr).appendChild(basyotd);
+            fragment.appendChild(tr).appendChild(kanetd);
+            fragment.appendChild(tr).appendChild(syuruitd);
+            fragment.appendChild(tr).appendChild(komentotd);
+            fragment.appendChild(tr).appendChild(timetd);
+            zougendatajs.appendChild(fragment);
+        }
     }
-    for(let lop=0;lop<JsonData.idou.length;lop++){
 
-        let fragment = document.createDocumentFragment();
-        let tr = document.createElement("tr");
-        let idtd = document.createElement("td");
-        let kanetd = document.createElement("td");
-        let maetd = document.createElement("td");
-        let atotd = document.createElement("td");
-        let komentotd = document.createElement("td");
-        let timetd = document.createElement("td");
-        kanetd.setAttribute("class","kane");
-        JsonData.idou[lop].kane = changekane(JsonData.idou[lop].kane);
-        idtd.textContent = JsonData.idou[lop].id;
-        kanetd.textContent = JsonData.idou[lop].kane;
-        maetd.textContent = JsonData.idou[lop].mae;
-        atotd.textContent = JsonData.idou[lop].ato;
-        komentotd.innerHTML = JsonData.idou[lop].komento;
-        timetd.textContent = JsonData.idou[lop].time;
-        fragment.appendChild(tr).appendChild(idtd);
-        fragment.appendChild(tr).appendChild(maetd);
-        fragment.appendChild(tr).appendChild(atotd);
-        fragment.appendChild(tr).appendChild(kanetd);
-        fragment.appendChild(tr).appendChild(komentotd);
-        fragment.appendChild(tr).appendChild(timetd);
-        idoudatajs.appendChild(fragment);
-    }
-    for(let lop=0;lop<JsonData.zaisan.length;lop++){
 
-        let fragment = document.createDocumentFragment();
-        let tr = document.createElement("tr");
-        let nametd = document.createElement("td");
-        let kanetd = document.createElement("td");
+    if(JsonData.idou === "今月のデータはありません"){
+        let Nidou = document.createElement("h1");
+        Nidou.textContent = JsonData.idou;
+        idoudatajs.appendChild(Nidou);
+    }else{
+        for(let lop=0;lop<idoucel.length;lop++){
+            let celth = document.createElement("th");
+            celth.textContent = idoucel[lop];
+            celth.setAttribute("class",idouop[lop]);
+            idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
+        }
+        idoudatajs.appendChild(idoufrag);
 
-        kanetd.setAttribute("class","kane");
-        nametd.textContent = JsonData.zaisan[lop].name;
-        JsonData.zaisan[lop].num = changekane(JsonData.zaisan[lop].num);
-        kanetd.textContent = JsonData.zaisan[lop].num;
-        fragment.appendChild(tr).appendChild(nametd);
-        fragment.appendChild(tr).appendChild(kanetd);
-        nowdatajs.appendChild(fragment);
+        idouvalue = JsonData.idou[0].id;
+
+        for(let lop=0;lop<JsonData.idou.length;lop++){
+
+            let fragment = document.createDocumentFragment();
+            let tr = document.createElement("tr");
+            let idtd = document.createElement("td");
+            let kanetd = document.createElement("td");
+            let maetd = document.createElement("td");
+            let atotd = document.createElement("td");
+            let komentotd = document.createElement("td");
+            let timetd = document.createElement("td");
+            kanetd.setAttribute("class","kane");
+            JsonData.idou[lop].kane = changekane(JsonData.idou[lop].kane);
+            idtd.textContent = JsonData.idou[lop].id;
+            kanetd.textContent = JsonData.idou[lop].kane;
+            maetd.textContent = JsonData.idou[lop].mae;
+            atotd.textContent = JsonData.idou[lop].ato;
+            komentotd.innerHTML = JsonData.idou[lop].komento;
+            timetd.textContent = JsonData.idou[lop].time;
+            fragment.appendChild(tr).appendChild(idtd);
+            fragment.appendChild(tr).appendChild(maetd);
+            fragment.appendChild(tr).appendChild(atotd);
+            fragment.appendChild(tr).appendChild(kanetd);
+            fragment.appendChild(tr).appendChild(komentotd);
+            fragment.appendChild(tr).appendChild(timetd);
+            idoudatajs.appendChild(fragment);
+        }
+        
+        
+        for(let lop=0;lop<JsonData.zaisan.length;lop++){
+
+            let fragment = document.createDocumentFragment();
+            let tr = document.createElement("tr");
+            let nametd = document.createElement("td");
+            let kanetd = document.createElement("td");
+
+            kanetd.setAttribute("class","kane");
+            nametd.textContent = JsonData.zaisan[lop].name;
+            JsonData.zaisan[lop].num = changekane(JsonData.zaisan[lop].num);
+            kanetd.textContent = JsonData.zaisan[lop].num;
+            fragment.appendChild(tr).appendChild(nametd);
+            fragment.appendChild(tr).appendChild(kanetd);
+            nowdatajs.appendChild(fragment);
+        }
     }
 }
 

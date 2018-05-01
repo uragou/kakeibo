@@ -20,8 +20,6 @@ header{
     width: 100%;
     top: 0px;
     right: 0px;
-    margin: 0px;
-    padding: 0px;
     background-color:#4B610B;
     z-index: 9999;
 }
@@ -33,6 +31,13 @@ ul{
 }
 li{
     display: inline-block;
+}
+
+h1{
+    position: relative;
+    font-size: 70px;
+    top:100px;
+    color: gray;
 }
 
 h5{
@@ -126,9 +131,26 @@ td{
     outline: none;
 }
 
+.koumoku{
+    position: relative;
+    float: left;
+    width: 15%;
+}
+
+.koumoku:hover{
+    background-color:#ACFA58;
+}
+
+#nobtn{
+    pointer-events: none;
+}
+
 #daimei{
+    position: relative;
+    float: left;
+    width: 15%;
     background-color:#868A08;
-    padding: auto 115px;
+
 }
 
 #zougendata{
@@ -140,7 +162,6 @@ td{
 }
 
 #idoudata{
-    background-color: #9AF3D2;
     position: relative;
     table-layout: fixed;
     margin: 15px auto;
@@ -161,7 +182,6 @@ td{
     margin: 50px auto 15px;
     font-weight:700;
     width: 1000px;
-    background-color: #9AF3D2;
 }
 
 #nowdata{
