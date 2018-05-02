@@ -97,6 +97,21 @@ function SQLfunc(JsonData){
         nowfrag.appendChild(nowhead).appendChild(nowtr).appendChild(celth);
     }
     nowdatajs.appendChild(nowfrag);
+    for(let lop=0;lop<JsonData.zaisan.length;lop++){
+
+        let fragment = document.createDocumentFragment();
+        let tr = document.createElement("tr");
+        let nametd = document.createElement("td");
+        let kanetd = document.createElement("td");
+
+        kanetd.setAttribute("class","kane");
+        nametd.textContent = JsonData.zaisan[lop].name;
+        JsonData.zaisan[lop].num = changekane(JsonData.zaisan[lop].num);
+        kanetd.textContent = JsonData.zaisan[lop].num;
+        fragment.appendChild(tr).appendChild(nametd);
+        fragment.appendChild(tr).appendChild(kanetd);
+        nowdatajs.appendChild(fragment);
+    }
 
     if(JsonData.zougen === "今月のデータはありません"){
 
@@ -193,23 +208,6 @@ function SQLfunc(JsonData){
             fragment.appendChild(tr).appendChild(komentotd);
             fragment.appendChild(tr).appendChild(timetd);
             idoudatajs.appendChild(fragment);
-        }
-        
-        
-        for(let lop=0;lop<JsonData.zaisan.length;lop++){
-
-            let fragment = document.createDocumentFragment();
-            let tr = document.createElement("tr");
-            let nametd = document.createElement("td");
-            let kanetd = document.createElement("td");
-
-            kanetd.setAttribute("class","kane");
-            nametd.textContent = JsonData.zaisan[lop].name;
-            JsonData.zaisan[lop].num = changekane(JsonData.zaisan[lop].num);
-            kanetd.textContent = JsonData.zaisan[lop].num;
-            fragment.appendChild(tr).appendChild(nametd);
-            fragment.appendChild(tr).appendChild(kanetd);
-            nowdatajs.appendChild(fragment);
         }
     }
 }
