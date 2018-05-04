@@ -1,22 +1,21 @@
-
+//httpリクエストを受け付ける
 var http = require('http');
 var fs   = require('fs');
+//ポート番号は55555
 var port = 55555;
 let server = http.createServer();
-
+//待ち受ける
 server.listen(port, function(){
     console.log('listening on *:'+port);
 });
 
-
-//zaisan
-//zaihistory は自動で作られない
+//今日の日付を取得、1月ごとのデータを格納するのに使用する。
 let date = new Date();
 let hdate = "";
 let NowMaxzougen;
 let NowMaxidou;
-//SELECT * FROM zougen201803 WHERE id < 35 ORDER BY id DESC LIMIT 10;
 
+//new Dateは0～11で月を返すので01~12に修正している。
 if(date.getMonth()+1 < 10){
     hdate = date.getFullYear()+'0'+ (date.getMonth()+1) ;
 }else{
@@ -25,7 +24,7 @@ if(date.getMonth()+1 < 10){
 //接続
 server.on("request",getdata);
          
-//mysqlからのデータ取得したい
+//mysqlからのデータ取得する。dbConfigはデータベースにアクセスするためのオブジェクト
 var mysql = require('mysql');
 let dbConfig = {
     host: 'localhost',
@@ -57,11 +56,25 @@ function forHTML(data){
 //テーブルがあるかどうか作成
 //というより、月日が変わった時の処理
 function init(){
+    connection.query('SELECT * FROM zaisan', function (err, results) {
+        if(err){
+            Inittable();
+        }
+    });
     connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         if(err){
             CreateTable();
             UpdateTables();
         }
+    });
+}
+
+function Inittable(){
+    connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+        console.log("財産データベース作成中");
+    });
+    connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+        console.log("財産履歴データベース作成中");
     });
 }
 
@@ -322,8 +335,9 @@ function zaisanAdd(io,basyo,num){
     return new Promise((resolve,reject)=>{
         var insertData;
         var bufnum;
-        connection.query("SELECT id,kane FROM zaisan WHERE name='" + basyo + "';", function (err, results) {
+        connection.query("SELECT * FROM zaisan WHERE name='" + basyo + "';", function (err, results) {
             //console.log('--- results ---');
+            //console.log(results[0].name);
             //results[0].kaneは金額
             if(io == "in"){
                 //console.log( parseInt(results[0].kane, 10)  + parseInt(num, 10));
@@ -339,8 +353,7 @@ function zaisanAdd(io,basyo,num){
                 }
                 resolve("OK");
             }
-            insertData = "UPDATE zaisan SET kane =" + bufnum + " WHERE id=" + results[0].id + ";";
-
+            insertData = "UPDATE zaisan SET kane =" + bufnum + " WHERE name = \"" + results[0].name + "\";";
             connection.query(insertData, function (err, results) {
                 console.log('--- results ---');
                 console.log(results);

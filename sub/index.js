@@ -1,6 +1,9 @@
 /* 
   index.jsでは入力部分のプルダウンメニューをDOMで変更している
 その時にajaxを用いてindex.jsを受け取っている
+
+
+　　　　　ajax・DOMは動詞
 */
 
 let begin = new XMLHttpRequest();
@@ -25,6 +28,9 @@ begin.onloadend = function(){
     }
 };
 
+/*
+  async.jsが最初のajaxを終わらせると実行される
+*/
 function BeginFunc(){
     begin.open('POST','/sub/index.json' , true);
     begin.send("begin");

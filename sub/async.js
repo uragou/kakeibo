@@ -7,29 +7,37 @@ var idouvalue = 0;
 let leftzougen = document.getElementById("zougenup");
 let rightzougen = document.getElementById("zougenback");
 var zougenvalue = 0;
-//console.log(zouid[0]);
-//console.log(idouid[0]);
 //loadイベントにてロードしたらイベントが起こる
 //openに内容を書いてsendで送る。
 
+/*
+  ajaxの核部分、nodeから送られてくるjsonファイルを受け取ってSQLfunc関数に渡す
+最初はdefaultデータを取得し、ボタンを押すとnextデータを取得する。
+BeginFunc関数はindex.jsにある。本当はbody部分に二つ関数を書きたかったが、エラーとなるうえどちらが先に実行されるか分からず、
+不安定なためこちらがdefaultデータを受け取ってからBeginFuncで次のajax通信を開始する。
+asnc.jsで実行するとここでjsonを受け取ることになり、別のjsファイルにうまく引き継げなかったため、関数ごとindex.jsに移動した。
+*/
 ajax.onloadend = function(){
     if(ajax.readyState === 4 && ajax.status === 200){
         //console.log(ajax.response);
         JsonData = JSON.parse(ajax.response);
+        //コンソール画面（f12）に送られてきたjsonが表示される
         console.log(JsonData);
         if(JsonData.status === "default" || JsonData.status === "next"){
             SQLfunc(JsonData);
             if(JsonData.status === "default"){
-                //この結果はindex.jsで処理しよう
                 BeginFunc();
             }
-        }else if(JsonData.status === "next"){
-            SQLfunc(JsonData);
         }
         //ここに結果が来ている
     }
 };
 
+/*
+  このinit関数はindex.htmlの<body onload="init()">により実行される関数である
+イベントはonloadのため表示されたときに一度だけ実行する。「default」と送り、defaultデータのjsonを要求する。
+ajax.openの第三引数は非同期かどうかを決める引数であり、falseだと警告される。（特に今回のような任意の回数ajaxする時）
+*/
 function init(){
     //非同期　false じゃないと連続で受け取れない
     ajax.open('POST','/sub/Sdata.json' , true);
@@ -37,6 +45,15 @@ function init(){
 };
 
 
+/*
+  下の4つの関数は文字通りそれぞれindex.htmlの4つのボタンに対応している。
+ボタンを押すとそれぞれに対応したjsonを要求しする。例えばleftidouのボタンを押すと、
+zougenデータはそのままにidouデータは最初に表示されているデータより、10件古いデータを送ってくる。
+これにより各データの履歴を参照することができる。
+送る内容は、まずajaxであることを示す「ajax」どちらの履歴をたどるかを示す「zougen」or「idou」
+今、何件目のデータを表示しているかを示す「zougenvalue」「idouvalue」
+古い履歴を見るか、新しいデータを見るかを決める「up」「down」
+*/
 rightidou.addEventListener("click",function(ev){
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",down");
@@ -60,7 +77,10 @@ leftzougen.addEventListener("click",function(ev){
 
 
 
-
+/*
+  zaisan,zougen,idouの各データをテーブルに格納する。
+ajaxするたびに新しく作り直す。
+*/
 function SQLfunc(JsonData){
 
     let zougendatajs = document.getElementById("zougendata");
@@ -90,7 +110,7 @@ function SQLfunc(JsonData){
     let idouop = ["tableOther","tableOther","tableOther",
                     "tablekane","","tableDate"];
 
-
+    //zaisanデータをテーブルに格納する
     for(let lop=0;lop<zaicel.length;lop++){
         let celth = document.createElement("th");
         celth.textContent = zaicel[lop];
@@ -113,6 +133,7 @@ function SQLfunc(JsonData){
         nowdatajs.appendChild(fragment);
     }
 
+    //zougenデータをテーブルに格納する。データがない時はないと表示する。
     if(JsonData.zougen === "今月のデータはありません"){
 
         let Nzougen = document.createElement("h1");
@@ -167,7 +188,7 @@ function SQLfunc(JsonData){
         }
     }
 
-
+    //idouデータをテーブルに格納する。データがない時はないと表示する。
     if(JsonData.idou === "今月のデータはありません"){
         let Nidou = document.createElement("h1");
         Nidou.textContent = JsonData.idou;
@@ -212,6 +233,7 @@ function SQLfunc(JsonData){
     }
 }
 
+//送られてくる金額データはただの整数であるため、3桁ずつに区切って見やすくする
 function changekane(num){
     var anum = "";
     let lop = 3;
