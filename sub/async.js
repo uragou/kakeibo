@@ -103,11 +103,11 @@ function SQLfunc(JsonData){
     let idoutr = document.createElement("tr");
 
     let zaicel = ["保管場所","金額"];
-    let zoucel = ["ID","分類","場所","金額","種類","コメント","日付"];
-    let zouop = ["tableOther","tableOther","tableOther",
+    let zoucel = ["分類","場所","金額","種類","コメント","日付"];
+    let zouop = ["tableOther","tableOther",
                     "tablekane","tableHow","","tableDate"];
-    let idoucel = ["ID","移動元","移動先","金額","コメント","日付"];
-    let idouop = ["tableOther","tableOther","tableOther",
+    let idoucel = ["移動元","移動先","金額","コメント","日付"];
+    let idouop = ["tableOther","tableOther",
                     "tablekane","","tableDate"];
 
     //zaisanデータをテーブルに格納する
@@ -155,7 +155,6 @@ function SQLfunc(JsonData){
 
             let fragment = document.createDocumentFragment();
             let tr = document.createElement("tr");
-            let idtd = document.createElement("td");
             let bunruitd = document.createElement("td");
             let basyotd = document.createElement("td");
             let kanetd = document.createElement("td");
@@ -169,7 +168,6 @@ function SQLfunc(JsonData){
                 tr.setAttribute("class","okane");
             }
             kanetd.setAttribute("class","kane");
-            idtd.textContent = JsonData.zougen[lop].id;
             bunruitd.textContent = JsonData.zougen[lop].bunrui;
             basyotd.textContent = JsonData.zougen[lop].basyo;
             JsonData.zougen[lop].kane = changekane(JsonData.zougen[lop].kane);
@@ -177,7 +175,6 @@ function SQLfunc(JsonData){
             syuruitd.textContent = JsonData.zougen[lop].syurui;
             komentotd.innerHTML = JsonData.zougen[lop].komento;
             timetd.textContent = JsonData.zougen[lop].time;
-            fragment.appendChild(tr).appendChild(idtd);
             fragment.appendChild(tr).appendChild(bunruitd);
             fragment.appendChild(tr).appendChild(basyotd);
             fragment.appendChild(tr).appendChild(kanetd);
@@ -201,14 +198,12 @@ function SQLfunc(JsonData){
             idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
         }
         idoudatajs.appendChild(idoufrag);
-
         idouvalue = JsonData.idou[0].id;
 
         for(let lop=0;lop<JsonData.idou.length;lop++){
 
             let fragment = document.createDocumentFragment();
             let tr = document.createElement("tr");
-            let idtd = document.createElement("td");
             let kanetd = document.createElement("td");
             let maetd = document.createElement("td");
             let atotd = document.createElement("td");
@@ -216,13 +211,11 @@ function SQLfunc(JsonData){
             let timetd = document.createElement("td");
             kanetd.setAttribute("class","kane");
             JsonData.idou[lop].kane = changekane(JsonData.idou[lop].kane);
-            idtd.textContent = JsonData.idou[lop].id;
             kanetd.textContent = JsonData.idou[lop].kane;
             maetd.textContent = JsonData.idou[lop].mae;
             atotd.textContent = JsonData.idou[lop].ato;
             komentotd.innerHTML = JsonData.idou[lop].komento;
             timetd.textContent = JsonData.idou[lop].time;
-            fragment.appendChild(tr).appendChild(idtd);
             fragment.appendChild(tr).appendChild(maetd);
             fragment.appendChild(tr).appendChild(atotd);
             fragment.appendChild(tr).appendChild(kanetd);

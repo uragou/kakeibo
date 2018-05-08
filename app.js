@@ -69,16 +69,6 @@ function init(){
     });
 }
 
-function Inittable(){
-    connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
-        console.log("財産データベース作成中");
-    });
-    connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
-        console.log("財産履歴データベース作成中");
-    });
-}
-
-
 function getdata(req,res){
     //console.log(req);
     console.log("---------------");
@@ -412,5 +402,20 @@ function AddData(NewData){
     console.log(NewData);
     connection.query(NewData, function (err, results) {
         console.log(err);
+    });
+}
+
+function Inittable(){
+    let zailis = ["パスモ","銀行","自宅金","財布"];
+    //jsonから持ってくるようにする！
+    connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+        console.log("財産データベース作成中");
+    });
+    for(let lop=0 ;lop<zailis.length;lop++){
+        connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ zailis[lop] +"\",0);", function(err,results){
+        });
+    }
+    connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+        console.log("財産履歴データベース作成中");
     });
 }
