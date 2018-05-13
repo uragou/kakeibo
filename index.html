@@ -18,6 +18,7 @@
         <form id = "sqlsend" name="sqlsend" method="post" action=".">
                 分類
                 <select name="bunrui" id="bunrui">
+                    <option value="未選択">選べ</option>
                     <option value="収入">収入</option>
                     <option value="支出">支出</option>
                     <option value="移動">移動</option>
@@ -31,20 +32,20 @@
                 <span name = "idou" id = "idou"></span>
                 コメント
                 <input name = "text" type="text">
-                <input id="okuru" type="submit" value="送  信">
+                <input id="okuru" type="submit" value="" disabled>
         </form>
         <div id = "nowcel">
             <table id ="nowdata">
             </table>
         </div>
-        <div class="tableset">
+        <div class="tablesetZ">
             <h5 id = "syusi">収支データ</h5>
             <table id ="zougendata">
             </table>
             <input class = "ajaxlbtn"  id = "zougenup" type = "button"  name = "zougenup">
             <input class = "ajaxrbtn" id = "zougenback" type = "button" name = "zougenback">
         </div>
-        <div class="tableset">
+        <div class="tablesetI">
             <h5 id = "ido">移動データ</h5>
             <table id ="idoudata">
             </table>

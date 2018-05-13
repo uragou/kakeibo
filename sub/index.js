@@ -56,7 +56,7 @@ function SorS(event){
       この関数部分では種類、→部分（コメント入力欄の一つ左のプルダウンメニュー）を変更している。
     残りは関数内で実行しているFromto関数で変更している
     if文はthis.valueの値で分岐しているが、最初（ページを開いた時）は値がないため
-    初期値である「収入」はelseにしている。
+    初期値では何も入れない
     this.valueには分類の値「収入」「支出」「移動」の値を入れている
     */
 
@@ -70,6 +70,7 @@ function SorS(event){
             fragment.appendChild(opts[lop]);
         }
         Fromto(this.value);
+        SubSwOn();
 
     }else if(this.value == "移動"){
         //Bidouは財産の種類でもある
@@ -82,7 +83,8 @@ function SorS(event){
             fragment.appendChild(opts[lop]);
         }
         Fromto(this.value);
-    }else{
+        SubSwOn();
+    }else if(this.value == "収入"){
         //分類を「収入」にした時の「種類」のプルダウンメニューを作っている
         var opts = new Array(Bdata.Bsyunyu.length);
         for(let lop = 0; lop< Bdata.Bsyunyu.length ; lop++){
@@ -92,9 +94,25 @@ function SorS(event){
             fragment.appendChild(opts[lop]);
         }
         Fromto(this.value);
+        SubSwOn();
+    }else{
+        //初期状態の時は送信ボタンを押せないようにする
+        //<input id="okuru" type="submit" value="送  信">
+        let Okuru = document.getElementById("okuru");
+        Okuru.disabled = true;
+        Okuru.setAttribute("value","　　　");
+        Okuru.setAttribute("class","SendNo");
     }
     naiyoujs.appendChild(fragment);
 
+}
+
+//送信ボタンをONにする
+function SubSwOn(){
+    let Okuru = document.getElementById("okuru");
+    Okuru.disabled = false;
+    Okuru.setAttribute("value","送　信");
+    Okuru.setAttribute("class","SendOk");
 }
 
 

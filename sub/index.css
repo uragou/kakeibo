@@ -46,8 +46,8 @@ h5{
     text-align: initial;
     color: gray;
     width: 30vw;
-    z-index: 2;
-    bottom: 220px;
+    z-index: 9999;
+    bottom: 10px;
     opacity: 0.35;
 }
 
@@ -74,10 +74,16 @@ td{
     text-align: right; 
 }
 
-.tableset{
+.tablesetZ{
     position: relative;
     margin: auto;
     height: 350px;
+    width: 1000px;
+}
+.tablesetI{
+    position: relative;
+    margin: auto;
+    height: 170px;
     width: 1000px;
 }
 
@@ -166,15 +172,22 @@ td{
     table-layout: fixed;
     margin: 15px auto;
     width: 900px;
+    background-color: #E0F8E6;
 }
 
 #okuru{
-    background-color: #00BFFF;
     color: white;
     border-radius: 20px;
     font-size: 14px;
-    cursor: pointer;
     outline: none;
+}
+.SendOk{
+    background-color: #00BFFF;
+    cursor: pointer;
+}
+
+.SendNo{
+    background-color: #DF013A;
 }
 
 #sqlsend{
@@ -196,12 +209,12 @@ td{
 }
 
 #idouup{
-    top:35%;
+    top:20%;
     left:5px;
 }
 
 #idouback{
-    top:35%;
+    top:20%;
     right:5px;
 }
 
@@ -213,4 +226,11 @@ td{
 #zougenback{
     top:35%;
     right:5px;
+}
+
+#syusi{
+    bottom: 65%;
+}
+#ido{
+    bottom: 25%;
 }

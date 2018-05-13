@@ -142,20 +142,20 @@ function SQLjson(path,res,code,zou,ido,vec){
             zou = parseInt(zou) + 10;
         }
     }else if(code === "idou"){
-        if(vec === "down" && ido - 10 > 0){
-            ido = parseInt(ido) - 10;
+        if(vec === "down" && ido - 5 > 0){
+            ido = parseInt(ido) - 5;
         }else if(vec === "up"){
             //プラス方向はどうせWHEREだから大丈夫
-            ido = parseInt(ido) + 10;
+            ido = parseInt(ido) + 5;
         }
     }
     
     if(code === "default"){
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
-        IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 10;';
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 5;';
     }else{
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ zou +'  ORDER BY id DESC LIMIT 10';
-        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ ido +'  ORDER BY id DESC LIMIT 10';
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ ido +'  ORDER BY id DESC LIMIT 5';
     }
 
     connection.query(ZougenQuery, function (err, results) {
@@ -272,7 +272,7 @@ function postshori(req,res){
                 }else{
                     console.log("同じじゃん");
                 }
-            }else{
+            }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
                 var send = "";
                 if(bunkatu[0] == "収入"){
                     send = "in";
@@ -291,6 +291,8 @@ function postshori(req,res){
                     }
 
                 );
+            }else{
+                console.log("POST受信データがおかしい");
             }
 
             console.log(postdata);
