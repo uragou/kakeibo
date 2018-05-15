@@ -34,42 +34,96 @@ let dbConfig = {
 };
 let connection = mysql.createConnection(dbConfig);
 connection.connect();
+//始めに一度だけinit関数を呼ぶ
 init();
 
-//QUOTEにより変なデータがSQLにいかないようにできるが、連続の"""だと失敗(データは挿入されない)
 
-function forHTML(data){
+//--------------------------------------------------------------------たまに動く関数たち---------------------------------------------------------------
 
-    //replace自体が一回しか実行されない g付ければok
-    //配列の感じじゃなく、本当に文字数
-    data = data.substr(1,data.length-2);
-    data = data.replace(/&/g,'&amp;');  
-    data = data.replace(/'/g,"&#x27;");
-    data = data.replace(/`/g,'&#x60;');
-    data = data.replace(/"/g,'&quot;');
-    data = data.replace(/</g,'&lt;');
-    data = data.replace(/>/g,'&gt;');
-    data = data.replace(/ /g,'&nbsp;');
-	return data;
-}
-
-//テーブルがあるかどうか作成
-//というより、月日が変わった時の処理
-function init(){
+/*  テーブルがあるかどうか作成
+  というより、月日が変わった時の処理
+  簡単なSQL文を送って、エラーが帰ってきたら各関数に移動してテーブルを作る
+  時間があったら、ちゃんとエラー文の内容を見て動作させたい*/
+  function init(){
     connection.query('SELECT * FROM zaisan', function (err, results) {
         if(err){
+            //根本となるzaisanテーブルとzaihistoryテーブルの作成（通常は一度飲み）
             Inittable();
         }
     });
     connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
         if(err){
+            //zaisanテーブル以外の作成（月に一度、起動時に作成）
             CreateTable();
             UpdateTables();
         }
     });
 }
 
-function getdata(req,res){
+/*  zaisanテーブルを作成し、各項目を残高0の状態で作成する
+  データが少ないので各名称を配列に入れているが、いずれはなんとかしたい。*/
+function Inittable(){
+    let zailis = ["パスモ","銀行","自宅金","財布"];
+    //jsonから持ってくるようにする！
+    connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+        console.log("財産データベース作成中");
+    });
+    for(let lop=0 ;lop<zailis.length;lop++){
+        connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ zailis[lop] +"\",0);", function(err,results){
+        });
+    }
+    connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+        console.log("財産履歴データベース作成中");
+    });
+}
+
+
+/*  その月のzougenテーブルとidouテーブルを作成する
+  作成するときは年と月を組み合わせた数字を先頭に置く*/
+function CreateTable(){
+    let table = ["CREATE TABLE kakeibo_db.zougen" + hdate + " (id int AUTO_INCREMENT,bunrui varchar(8),basyo varchar(32),kane int,syurui varchar(32),komento varchar(255),time date,primary key(id));",
+                "CREATE TABLE kakeibo_db.idou" + hdate + " (id int AUTO_INCREMENT,kane int,mae varchar(32),ato varchar(32),komento varchar(255),time date,primary key(id));"];
+    for(let lop = 0; lop < 2 ;lop++){
+        connection.query(table[lop], function (err, results) {
+            console.log("新テーブル作成"+ (lop+1) + "/2");
+        });
+    }
+    console.log("作成終了");
+    
+}
+
+/*  月の最初の起動時にzaisanテーブルの各残高状態をzaihistoryテーブルに入れる
+  いずれなにかするときに活用したい。*/
+function UpdateTables(){
+    let query = "SELECT * FROM zaisan;";
+    connection.query(query, function (err, results) {
+        //console.log('--- results ---');
+        //console.log(results);
+        for(let lop=0; lop < results.length ;lop++){
+            AddData("INSERT INTO zaihistory (zaisanID,name,kane,time) VALUES( "+ results[lop].id +",'"+results[lop].name+"',"+results[lop].kane+",DATE(NOW()) );");
+        }
+    });
+}
+
+/*  UpdateTablesの付属関数、各要素をzaihisutoryテーブルに入れる部分 */
+function AddData(NewData){
+    console.log(NewData);
+    connection.query(NewData, function (err, results) {
+        console.log(err);
+    });
+}
+
+
+
+
+//---------------------------------------------------------メインの関数たち----------------------------------------------------------------
+
+
+/*  GETでリクエストが来たら、内容に従ってファイルを送る
+  要求が来たらヘッダー内容を書いて、テキストファイルならSfile関数
+  バイナリデータならBSfile関数に移動する
+  POSTの場合はpostshoriに移動する */
+  function getdata(req,res){
     //console.log(req);
     console.log("---------------");
     //console.log(res);
@@ -105,6 +159,155 @@ function getdata(req,res){
     }
 
 }
+
+
+/*  各ファイルを転送する時に使用する関数たち
+  違いはテキストファイルを送るときに必要な "UTF-8" の部分くらい*/
+
+function Sfile(path,res){
+    fs.readFile(path,"UTF-8",function(err ,data){
+        if(err){
+            console.log("------err------");
+            console.log(err);
+        }
+        res.end(data);
+        console.log("転送");
+    });
+}
+function BSfile(path,res){
+    fs.readFile(path,function(err ,data){
+        if(err){
+            console.log("------err------");
+            console.log(err);
+        }
+        res.end(data);
+        console.log("転送");
+    });
+}
+
+
+/*  POSTでリクエストが送られてきた場合に処理する関数
+  Ajaxによる非同期通信と、家計簿データ書き込み時はこっちから要求される*/
+function postshori(req,res){
+    var postdata="";
+    let bunkatu = [];
+    //データ受け取り部分
+    req.on("data",function(data){
+        postdata += data;
+    });
+    req.on("end",function(){
+        console.log(postdata);
+
+        //送られてきたデータの先頭によって、何の要求かを判断する
+
+        /*　bgein　は最初のリクエスト時にindex.jsonをAjaxで要求されたときの先頭
+          既に作成されてあるため、そのまま送れる*/
+        if (postdata === "begin"){
+            res.writeHead(200,{"Content-Type": "application/json"});
+            Sfile("./sub/index.json",res);
+        }else if (postdata === "default"){
+        /*　default　は最初のリクエスト時にSdata.jsonをAjaxで要求されたときの先頭
+          データベースからデータを取り出す際に使われるファイルであり、要求された時点で自分で生成するため
+          SQL関連の処理をするSQLjsonに移動する*/
+            SQLjson("./sub/Sdata.json",res,"default",0,0,"default");
+        }else if(postdata.substr(0,4) === "ajax"){
+          /*　ajax　は家計簿内の四つのボタンを押したときに送られるAjaxによる要求の先頭
+            基本的な内容はdefaultと処理は同じだが、データベースから取り出す位置は押されたボタンの内容によって変わるため
+            送られてきた内容を分割してSQLjsonに処理を移す*/
+            let splitdata = postdata.split(",");
+            SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
+        }else{
+            console.log(bunkatu);
+            bunkatu=postdata.split("&");
+
+            for(let lop=0;lop<bunkatu.length;lop++){
+                let bunkatuiti,taisyo = "";
+                //長いほうのデコードだと特殊記号も変換できる
+                //ただし半角スペースが+になったからreplace
+                //data = data.replace(/</g,'&lt;');
+                bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
+                taisyo = decodeURIComponent(bunkatu[lop]);
+                bunkatuiti = taisyo.indexOf("=");
+                //そのままだと = も含まれた
+                bunkatu[lop] = taisyo.substr(bunkatuiti+1);
+            }
+            // bunkatu[0]は分類
+            if( bunkatu[0] == "移動"){
+                if(bunkatu[2] != bunkatu[3]){
+                    zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+                        resolve =>{
+                            console.log(resolve);
+                            zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
+                                resolve =>{
+                                    console.log(resolve);
+                                    idouadd(bunkatu);
+                                },
+                                reject => {
+                                    console.log(reject);
+                                }
+        
+                            );
+                        },
+                        reject => {
+                            console.log(reject);
+                        }
+
+                    )
+                }else{
+                    console.log("同じじゃん");
+                }
+            }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
+                var send = "";
+                if(bunkatu[0] == "収入"){
+                    send = "in";
+                }else{
+                    send = "out";
+                }
+
+                zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
+                    //アロー演算子ってマジで何なんだよ
+                    resolve =>{
+                        console.log(resolve);
+                        zougenAdd(bunkatu);
+                    },
+                    reject => {
+                        console.log(reject);
+                    }
+
+                );
+            }else{
+                console.log("POST受信データがおかしい");
+            }
+
+            console.log(postdata);
+            console.log(bunkatu);
+            Sfile("./index.html",res);
+        }
+    });
+    
+}
+
+
+
+//QUOTEにより変なデータがSQLにいかないようにできる
+
+/*  forHTMLはデータベースから取り出したデータの中にそのまま表示するのは困る記号を変換する
+   HTMLで安全に表示するために必要 */
+function forHTML(data){
+
+    //replace自体が一回しか実行されない g付ければok
+    //配列の感じじゃなく、本当に文字数
+    data = data.substr(1,data.length-2);
+    data = data.replace(/&/g,'&amp;');  
+    data = data.replace(/'/g,"&#x27;");
+    data = data.replace(/`/g,'&#x60;');
+    data = data.replace(/"/g,'&quot;');
+    data = data.replace(/</g,'&lt;');
+    data = data.replace(/>/g,'&gt;');
+    data = data.replace(/ /g,'&nbsp;');
+	return data;
+}
+
 
 function SQLjson(path,res,code,zou,ido,vec){
     //console.log("ここまで");
@@ -216,93 +419,6 @@ function SQLjson(path,res,code,zou,ido,vec){
 }
 
 
-function postshori(req,res){
-    var postdata="";
-    let bunkatu = [];
-    req.on("data",function(data){
-        postdata += data;
-    });
-    req.on("end",function(){
-        console.log(postdata);
-        if (postdata === "begin"){
-            res.writeHead(200,{"Content-Type": "application/json"});
-            Sfile("./sub/index.json",res);
-        }else if (postdata === "default"){
-            SQLjson("./sub/Sdata.json",res,"default",0,0,"default");
-        }else if(postdata.substr(0,4) === "ajax"){
-            let splitdata = postdata.split(",");
-            SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
-        }else{
-            console.log(bunkatu);
-            bunkatu=postdata.split("&");
-
-            for(let lop=0;lop<bunkatu.length;lop++){
-                let bunkatuiti,taisyo = "";
-                //長いほうのデコードだと特殊記号も変換できる
-                //ただし半角スペースが+になったからreplace
-                //data = data.replace(/</g,'&lt;');
-                bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
-                taisyo = decodeURIComponent(bunkatu[lop]);
-                bunkatuiti = taisyo.indexOf("=");
-                //そのままだと = も含まれた
-                bunkatu[lop] = taisyo.substr(bunkatuiti+1);
-            }
-            // bunkatu[0]は分類
-            if( bunkatu[0] == "移動"){
-                if(bunkatu[2] != bunkatu[3]){
-                    zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
-                        resolve =>{
-                            console.log(resolve);
-                            zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
-                                resolve =>{
-                                    console.log(resolve);
-                                    idouadd(bunkatu);
-                                },
-                                reject => {
-                                    console.log(reject);
-                                }
-        
-                            );
-                        },
-                        reject => {
-                            console.log(reject);
-                        }
-
-                    )
-                }else{
-                    console.log("同じじゃん");
-                }
-            }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
-                var send = "";
-                if(bunkatu[0] == "収入"){
-                    send = "in";
-                }else{
-                    send = "out";
-                }
-
-                zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
-                    //アロー演算子ってマジで何なんだよ
-                    resolve =>{
-                        console.log(resolve);
-                        zougenAdd(bunkatu);
-                    },
-                    reject => {
-                        console.log(reject);
-                    }
-
-                );
-            }else{
-                console.log("POST受信データがおかしい");
-            }
-
-            console.log(postdata);
-            console.log(bunkatu);
-            Sfile("./index.html",res);
-        }
-    });
-    
-}
-
 function zougenAdd(bunkatu){
 
     let insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
@@ -355,69 +471,3 @@ function zaisanAdd(io,basyo,num){
     });
 }
 
-function Sfile(path,res){
-    fs.readFile(path,"UTF-8",function(err ,data){
-        if(err){
-            console.log("------err------");
-            console.log(err);
-        }
-        //./sub/sql.js 以外
-        res.end(data);
-        console.log("転送");
-    });
-}
-function BSfile(path,res){
-    fs.readFile(path,function(err ,data){
-        if(err){
-            console.log("------err------");
-            console.log(err);
-        }
-        res.end(data);
-        console.log("転送");
-    });
-}
-
-function CreateTable(){
-    let table = ["CREATE TABLE kakeibo_db.zougen" + hdate + " (id int AUTO_INCREMENT,bunrui varchar(8),basyo varchar(32),kane int,syurui varchar(32),komento varchar(255),time date,primary key(id));",
-                "CREATE TABLE kakeibo_db.idou" + hdate + " (id int AUTO_INCREMENT,kane int,mae varchar(32),ato varchar(32),komento varchar(255),time date,primary key(id));"];
-    for(let lop = 0; lop < 2 ;lop++){
-        connection.query(table[lop], function (err, results) {
-            console.log("新テーブル作成"+ (lop+1) + "/2");
-        });
-    }
-    console.log("作成終了");
-    
-}
-
-function UpdateTables(){
-    let query = "SELECT * FROM zaisan;";
-    connection.query(query, function (err, results) {
-        //console.log('--- results ---');
-        //console.log(results);
-        for(let lop=0; lop < results.length ;lop++){
-            AddData("INSERT INTO zaihistory (zaisanID,name,kane,time) VALUES( "+ results[lop].id +",'"+results[lop].name+"',"+results[lop].kane+",DATE(NOW()) );");
-        }
-    });
-}
-
-function AddData(NewData){
-    console.log(NewData);
-    connection.query(NewData, function (err, results) {
-        console.log(err);
-    });
-}
-
-function Inittable(){
-    let zailis = ["パスモ","銀行","自宅金","財布"];
-    //jsonから持ってくるようにする！
-    connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
-        console.log("財産データベース作成中");
-    });
-    for(let lop=0 ;lop<zailis.length;lop++){
-        connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ zailis[lop] +"\",0);", function(err,results){
-        });
-    }
-    connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
-        console.log("財産履歴データベース作成中");
-    });
-}

@@ -1,0 +1,13 @@
+1.nodeのinitする（特に特別な指定なし、socketとかも使わなくなってしまった）
+fsとかはいるのかな？
+
+2.kakeibo_dbをMySQL内に作成、
+let dbConfig = {
+    host: 'localhost',
+    database: 'kakeibo_db',
+    user: 'kakeibo',
+    password: 'kakeibokey'
+};
+の通り、ローカルで動かす前提だからこのまま
+
+3.nodeを起動してlocalhostの55555ポートをブラウザで開く(chrome)
