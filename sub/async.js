@@ -209,6 +209,9 @@ function SQLfunc(JsonData){
             let atotd = document.createElement("td");
             let komentotd = document.createElement("td");
             let timetd = document.createElement("td");
+
+            tr.setAttribute("class","ukane");
+
             kanetd.setAttribute("class","kane");
             JsonData.idou[lop].kane = changekane(JsonData.idou[lop].kane);
             kanetd.textContent = JsonData.idou[lop].kane;

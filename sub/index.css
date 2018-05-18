@@ -69,7 +69,6 @@ td{
     border-style: groove;
 }
 
-
 .kane{
     text-align: right; 
 }
@@ -109,6 +108,10 @@ td{
 
 .okane{
     background-color: #F4A8A7;
+}
+
+.ukane{
+    background-color: #E0F8E6;
 }
 
 
@@ -159,20 +162,12 @@ td{
 
 }
 
-#zougendata{
+#zougendata, #idoudata{
     position: relative;
     table-layout: fixed;
     margin: 15px auto;
     width: 900px;
 
-}
-
-#idoudata{
-    position: relative;
-    table-layout: fixed;
-    margin: 15px auto;
-    width: 900px;
-    background-color: #E0F8E6;
 }
 
 #okuru{
@@ -233,4 +228,8 @@ td{
 }
 #ido{
     bottom: 25%;
+}
+
+#zougendata tr:hover,#idoudata tr:hover{
+    background-color: springgreen;
 }
