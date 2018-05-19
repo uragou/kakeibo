@@ -11,6 +11,27 @@ let BData = "";
 let buntrijs = document.getElementById('bunrui');
 let okurujs = document.getElementById('okuru');
 
+let RadioBtn = document.getElementsByClassName("Rbtn");
+/*
+let SwBtn = [RadioBtn.length];
+
+for(let lop = 0; lop < RadioBtn.length ; lop++){
+    SwBtn[lop] = document.getElementById("Radio"+lop);
+    console.log(SwBtn);
+    Swbtn[lop].addEventListener("change",RadioEvent,false);
+}
+
+
+*/
+function RadioEvent(){
+    
+
+    /*　コメント横の日付に関するラジオボタンのイベント関数 */
+    console.log(this.value);  
+};
+
+
+
 /*
   ajaxでindex.jsonを取得する部分
 postでbeginと送るとindex.jsonが送られてくる
@@ -171,3 +192,4 @@ function Fromto(sentaku){
         basyojs.appendChild(Select);
     }
 }
+

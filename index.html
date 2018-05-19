@@ -32,10 +32,12 @@
                 <span name = "idou" id = "idou"></span>
                 コメント
                 <input name = "text" type="text">
-                <!--
-                <input type="radio" name="day" value = "today" checked>今日
-                <input type="radio" name="day" value = "other">今日以外
-                <input id="okuru" type="submit" value="" disabled>-->
+                <ul id = "SwDay">
+                    <li><input class = "Rbtn" id = "Radio0" type="radio" name="day" value = "today" checked>今日</li>
+                    <li><input class = "Rbtn" id = "Radio1" type="radio" name="day" value = "other">今日以外</li>
+                </ul>
+                <div id = "InputDay"></div>
+                <input id="okuru" type="submit" value="" disabled>
         </form>
         <div id = "nowcel">
             <table id ="nowdata">
