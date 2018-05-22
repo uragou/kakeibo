@@ -33,10 +33,13 @@
                 コメント
                 <input name = "text" type="text">
                 <ul id = "SwDay">
-                    <li><input class = "Rbtn" id = "Radio0" type="radio" name="day" value = "today" checked>今日</li>
-                    <li><input class = "Rbtn" id = "Radio1" type="radio" name="day" value = "other">今日以外</li>
+                    <!--name 属性がないと送信フォームに含まれない！！！！-->
+                    <li><input class = "Rbtn" id = "Radio0" type="radio"  value = "today" checked="checked">今日</li>
+                    <li><input class = "Rbtn" id = "Radio1" type="radio"  value = "other">昨日以降</li>
                 </ul>
-                <div id = "InputDay"></div>
+                <input id="InputDay" type="date" name="OtherDay"  required disabled>
+                <!--<div id = "InputDay"></div>-->
+                
                 <input id="okuru" type="submit" value="" disabled>
         </form>
         <div id = "nowcel">

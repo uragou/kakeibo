@@ -10,27 +10,50 @@ let begin = new XMLHttpRequest();
 let BData = "";
 let buntrijs = document.getElementById('bunrui');
 let okurujs = document.getElementById('okuru');
-
 let RadioBtn = document.getElementsByClassName("Rbtn");
-/*
-let SwBtn = [RadioBtn.length];
+let SwBtn = Array(RadioBtn.length);
 
+
+
+//日付関連の各ラジオボタンにイベントを設定している。
 for(let lop = 0; lop < RadioBtn.length ; lop++){
     SwBtn[lop] = document.getElementById("Radio"+lop);
-    console.log(SwBtn);
-    Swbtn[lop].addEventListener("change",RadioEvent,false);
+    SwBtn[lop].addEventListener("change",RadioEvent,false);
 }
 
 
-*/
-function RadioEvent(){
-    
-
-    /*　コメント横の日付に関するラジオボタンのイベント関数 */
-    console.log(this.value);  
+/*  ラジオボタンにより、今日以外の家計簿をつけたい場合は入力必須の日付フォームを操作可能とする
+  また「今日」のボタンを押すとdisabledがtrueになり、入力必須でなくなる*/
+function RadioEvent(ev){
+    let DayForm = document.getElementById("InputDay");
+    if(this.value == "other"){
+        SwBtn[0].checked = false;
+        DayForm.setAttribute("value",kyou(-1));
+        DayForm.setAttribute("max",kyou(-1));
+        DayForm.disabled = false;
+        console.log(DayForm);
+    }else if(this.value == "today"){
+        SwBtn[1].checked = false;
+        DayForm.disabled = true;
+    }else{
+        DayForm.disabled = true;
+    }
 };
 
+/*  名前通り本日の日付を返す 形式は yyyy-mm-dd 
+  引数は今日からの差　（明日なら１　おとといなら-2）*/
+function kyou(sa){
+    let date = new Date();
+    date.setDate(date.getDate()+sa);
+    let hdate;
 
+    if(date.getMonth()+1 < 10){
+        hdate = date.getFullYear() + "-0" + (date.getMonth()+1) + "-" + date.getDate();
+    }else{
+        hdate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+    }
+    return hdate;
+}
 
 /*
   ajaxでindex.jsonを取得する部分
