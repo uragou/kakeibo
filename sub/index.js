@@ -30,6 +30,7 @@ function RadioEvent(ev){
         SwBtn[0].checked = false;
         DayForm.setAttribute("value",kyou(-1));
         DayForm.setAttribute("max",kyou(-1));
+        DayForm.setAttribute("min","1900-01-01");
         DayForm.disabled = false;
         console.log(DayForm);
     }else if(this.value == "today"){

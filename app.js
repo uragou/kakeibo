@@ -12,14 +12,18 @@ server.listen(port, function(){
 //今日の日付を取得、1月ごとのデータを格納するのに使用する。
 let date = new Date();
 let hdate = "";
+let Today = "";
 let NowMaxzougen;
 let NowMaxidou;
 
 //new Dateは0～11で月を返すので01~12に修正している。
+//hdateはテーブルを作成するための年と月で、Todayは送信データを調べるための年、月、日
 if(date.getMonth()+1 < 10){
     hdate = date.getFullYear()+'0'+ (date.getMonth()+1) ;
+    Today =  date.getFullYear()+'0'+ (date.getMonth()+1) + (date.getDate());
 }else{
    hdate = date.getFullYear()+''+ (date.getMonth()+1) ;
+   Today =  date.getFullYear() + (date.getMonth()+1) + (date.getDate());
 }
 //接続
 server.on("request",getdata);
@@ -44,7 +48,7 @@ init();
   というより、月日が変わった時の処理
   簡単なSQL文を送って、エラーが帰ってきたら各関数に移動してテーブルを作る
   時間があったら、ちゃんとエラー文の内容を見て動作させたい*/
-  function init(){
+function init(){
     connection.query('SELECT * FROM zaisan', function (err, results) {
         if(err){
             //根本となるzaisanテーブルとzaihistoryテーブルの作成（通常は一度飲み）
@@ -123,7 +127,7 @@ function AddData(NewData){
   要求が来たらヘッダー内容を書いて、テキストファイルならSfile関数
   バイナリデータならBSfile関数に移動する
   POSTの場合はpostshoriに移動する */
-  function getdata(req,res){
+function getdata(req,res){
     //console.log(req);
     console.log("---------------");
     //console.log(res);
@@ -232,51 +236,56 @@ function postshori(req,res){
                 bunkatu[lop] = taisyo.substr(bunkatuiti+1);
             }
             // bunkatu[0]は分類
-            if( bunkatu[0] == "移動"){
-                if(bunkatu[2] != bunkatu[3]){
-                    zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+            if( !(Henkan(bunkatu[5]) == "error") ){
+                if( bunkatu[0] == "移動"){
+                    if(bunkatu[2] != bunkatu[3]){
+                        //promiseじゃない気がする。書き直し
+                        zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+                            resolve =>{
+                                console.log(resolve);
+                                zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
+                                    resolve =>{
+                                        console.log(resolve);
+                                        idouadd(bunkatu);
+                                    },
+                                    reject => {
+                                        console.log(reject);
+                                    }
+            
+                                );
+                            },
+                            reject => {
+                                console.log(reject);
+                            }
+
+                        )
+                    }else{
+                        console.log("同じじゃん");
+                    }
+                }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
+                    var send = "";
+                    if(bunkatu[0] == "収入"){
+                        send = "in";
+                    }else{
+                        send = "out";
+                    }
+
+                    zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
+                        //アロー演算子ってマジで何なんだよ
                         resolve =>{
                             console.log(resolve);
-                            zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
-                                resolve =>{
-                                    console.log(resolve);
-                                    idouadd(bunkatu);
-                                },
-                                reject => {
-                                    console.log(reject);
-                                }
-        
-                            );
+                            zougenAdd(bunkatu);
                         },
                         reject => {
                             console.log(reject);
                         }
 
-                    )
+                    );
                 }else{
-                    console.log("同じじゃん");
+                    console.log("POST受信データがおかしい");
                 }
-            }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
-                var send = "";
-                if(bunkatu[0] == "収入"){
-                    send = "in";
-                }else{
-                    send = "out";
-                }
-
-                zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
-                    //アロー演算子ってマジで何なんだよ
-                    resolve =>{
-                        console.log(resolve);
-                        zougenAdd(bunkatu);
-                    },
-                    reject => {
-                        console.log(reject);
-                    }
-
-                );
             }else{
-                console.log("POST受信データがおかしい");
+                console.log("日付関連のエラー");
             }
 
             console.log(postdata);
@@ -418,10 +427,23 @@ function SQLjson(path,res,code,zou,ido,vec){
     });
 }
 
+//zougenやidouの書き込みが失敗してもzaisanに書き込んでしまっているのを直したい。というかエラー処理をやりたい
 
 function zougenAdd(bunkatu){
-
     let insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
+    console.log(Henkan(bunkatu[5]));
+    console.log(parseInt(  Henkan(bunkatu[5])  ));
+    if(bunkatu[5] === "today"){
+        console.log("正常な今日");
+    }else if(parseInt(Today) <= parseInt(  Henkan(bunkatu[5])  )){
+        console.log("昨日以前じゃないじゃん");
+        return;
+    }else if(parseInt(Today) > parseInt( Henkan(bunkatu[5]) )){
+        insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE('" + bunkatu[5] +"') );";
+    }else{
+        console.log("日付関連のデータがおかしい");
+        return;
+    }
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -431,6 +453,19 @@ function zougenAdd(bunkatu){
 
 function idouadd(bunkatu){
     let insertData = "INSERT INTO idou"+ hdate +" (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
+    
+    if(bunkatu[5] === "today"){
+        console.log("正常な今日");
+    }else if(parseInt(Today) <= parseInt(  Henkan(bunkatu[5])  )){
+        console.log("昨日以前じゃないじゃん");
+        return;
+    }else if(parseInt(Today) > parseInt( Henkan(bunkatu[5]) )){
+        insertData = "INSERT INTO idou"+ hdate +" (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE('"+ bunkatu[5] +"') );";
+    }else{
+        console.log("日付関連のデータがおかしい");
+        return;
+    }
+    console.log(insertData);
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -469,5 +504,23 @@ function zaisanAdd(io,basyo,num){
             });
         });
     });
+}
+
+function Henkan(DayData){
+    if(DayData === "today"){
+        return "today";
+    }
+    try{
+        let ReDayData = DayData.replace(/-/g,"");
+        if(ReDayData < 19000000){
+            return "error";
+        }else{
+            return ReDayData;
+        }
+    }catch(err){
+        console.log(err);
+        console.log("受信日付データがおかしい");
+        return "error";
+    }
 }
 
