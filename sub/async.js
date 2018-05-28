@@ -75,7 +75,26 @@ leftzougen.addEventListener("click",function(ev){
     ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",up");
 });
 
-
+/*  テーブルを削除する処理、各テーブルのデータにあるイベント（ダブルクリックにより発生する）で実行される。
+　そのデータのテーブル種類と場所を示す値をもとに、Sdata.json内のデータからIDを探す。
+　ajaxではないのでindex.jsに持っていってもいいかもしれないが、イベントの登録場所とjsonを開ける場所がasync.jsなのでここに記述している。
+*/
+function DelFunc(Table,Id){
+    console.log(Table);
+    console.log(Id);
+    if(Table === "Z"){
+        console.log(JsonData.zougen[Id]);
+    }else if(Table === "I"){
+        console.log(JsonData.idou[Id]);
+    }else{
+        window.alert("ブラウザ内でのエラー");
+        return;
+    }
+    let Win = confirm("本当に削除しますか？");
+    if(Win == true){
+        window.alert("まだできねーよ");
+    }
+}
 
 /*
   zaisan,zougen,idouの各データをテーブルに格納する。
@@ -167,6 +186,9 @@ function SQLfunc(JsonData){
             }else{
                 tr.setAttribute("class","okane");
             }
+            tr.setAttribute("onDblClick","DelFunc('Z',"+ lop +")");
+            //この書き方により、各データをダブルクリックしたときのイベントを登録できる
+
             kanetd.setAttribute("class","kane");
             bunruitd.textContent = JsonData.zougen[lop].bunrui;
             basyotd.textContent = JsonData.zougen[lop].basyo;
@@ -211,6 +233,8 @@ function SQLfunc(JsonData){
             let timetd = document.createElement("td");
 
             tr.setAttribute("class","ukane");
+            tr.setAttribute("onDblClick","DelFunc('I',"+ lop +")");
+            //この書き方により、各データをダブルクリックしたときのイベントを登録できる
 
             kanetd.setAttribute("class","kane");
             JsonData.idou[lop].kane = changekane(JsonData.idou[lop].kane);

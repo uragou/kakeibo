@@ -1,6 +1,7 @@
 body{
     background-image: url("back.png");
     text-align: center;
+    cursor:default;
 }
 
 a{
@@ -114,14 +115,26 @@ td{
     background-color: #E0F8E6;
 }
 
+.ikane:hover,.ukane:hover,.okane:hover{
+    background-color: springgreen;
+    cursor:pointer;
+}
+
+.ajaxlbtn:hover,.ajaxrbtn:hover{
+    position: absolute;
+    width: 40px;
+    height: 150px;
+    background-color: springgreen;
+    color: white; 
+    cursor: pointer;
+}
+
 
 .ajaxlbtn{
     position: absolute;
     width: 40px;
     height: 150px;
     background-color: #00BFFF;
-    color: white; 
-    cursor: pointer;
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
     margin: auto;
@@ -132,8 +145,6 @@ td{
     width: 40px;
     height: 150px;
     background-color: rgb(238, 70, 121);
-    color: white; 
-    cursor: pointer;
     border-top-right-radius: 40px;
     border-bottom-right-radius: 40px;
     margin: auto;
@@ -148,6 +159,17 @@ td{
 
 .koumoku:hover{
     background-color:#ACFA58;
+}
+.SendOk{
+    background-color: #00BFFF;
+}
+.SendOk:hover{
+    background-color: springgreen;
+    cursor: pointer;
+}
+
+.SendNo{
+    background-color: #DF013A;
 }
 
 #nobtn{
@@ -175,14 +197,6 @@ td{
     border-radius: 20px;
     font-size: 14px;
     outline: none;
-}
-.SendOk{
-    background-color: #00BFFF;
-    cursor: pointer;
-}
-
-.SendNo{
-    background-color: #DF013A;
 }
 
 #sqlsend{
@@ -230,6 +244,3 @@ td{
     bottom: 25%;
 }
 
-#zougendata tr:hover,#idoudata tr:hover{
-    background-color: springgreen;
-}
