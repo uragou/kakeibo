@@ -79,13 +79,14 @@ leftzougen.addEventListener("click",function(ev){
 　そのデータのテーブル種類と場所を示す値をもとに、Sdata.json内のデータからIDを探す。
 　ajaxではないのでindex.jsに持っていってもいいかもしれないが、イベントの登録場所とjsonを開ける場所がasync.jsなのでここに記述している。
 */
-function DelFunc(Table,Id){
-    console.log(Table);
-    console.log(Id);
+function DelFunc(Table,Tid){
+    let Dtarget;
     if(Table === "Z"){
-        console.log(JsonData.zougen[Id]);
+        console.log(JsonData.zougen[Tid].id);
+        Dtarget = "delete,zougen," + zougenvalue + "," + idouvalue+ "," + JsonData.zougen[Tid].id;
     }else if(Table === "I"){
-        console.log(JsonData.idou[Id]);
+        console.log(JsonData.idou[Tid].id);
+        Dtarget = "delete,idou," + zougenvalue + "," + idouvalue+ "," + JsonData.idou[Tid].id;
     }else{
         window.alert("ブラウザ内でのエラー");
         return;
@@ -93,6 +94,9 @@ function DelFunc(Table,Id){
     let Win = confirm("本当に削除しますか？");
     if(Win == true){
         window.alert("まだできねーよ");
+        console.log(Dtarget);
+        ajax.open('POST','/sub/Sdata.json' , true);
+        ajax.send(Dtarget);
     }
 }
 

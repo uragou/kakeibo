@@ -134,7 +134,6 @@ function getdata(req,res){
     console.log(req.url);
     if(req.method == "GET"){
 
-
         if(req.url == "/"){
             res.writeHead(200,{"Content-Type": "text/html"});
             Sfile("./index.html",res);
@@ -157,9 +156,23 @@ function getdata(req,res){
             res.writeHead(200,{"Content-Type": "image/png"});
             BSfile("./sub/sonota.png",res);
         }
+        
     }else if(req.method == "POST"){
         //上の統合しようよ
-        postshori(req,res);
+        switch(req.url){
+            case "/sub/Sdata.json":
+            case "/sub/index.json":
+                ajaxsyori(req,res);
+                break;
+            case "/":
+
+                postshori(req,res);
+                break;
+            default:
+                console.log("ありえない要求");
+                break;
+        }
+        
     }
 
 }
@@ -192,7 +205,7 @@ function BSfile(path,res){
 
 /*  POSTでリクエストが送られてきた場合に処理する関数
   Ajaxによる非同期通信と、家計簿データ書き込み時はこっちから要求される*/
-function postshori(req,res){
+  function postshori(req,res){
     var postdata="";
     let bunkatu = [];
     //データ受け取り部分
@@ -201,11 +214,97 @@ function postshori(req,res){
     });
     req.on("end",function(){
         console.log(postdata);
-
         //送られてきたデータの先頭によって、何の要求かを判断する
+
+
+        bunkatu=postdata.split("&");
+
+        for(let lop=0;lop<bunkatu.length;lop++){
+            let bunkatuiti,taisyo = "";
+            //長いほうのデコードだと特殊記号も変換できる
+            //ただし半角スペースが+になったからreplace
+            //data = data.replace(/</g,'&lt;');
+            bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
+            taisyo = decodeURIComponent(bunkatu[lop]);
+            bunkatuiti = taisyo.indexOf("=");
+            //そのままだと = も含まれた
+            bunkatu[lop] = taisyo.substr(bunkatuiti+1);
+        }
+        // bunkatu[0]は分類
+        if( !(Henkan(bunkatu[5]) == "error") ){
+            if( bunkatu[0] == "移動"){
+                if(bunkatu[2] != bunkatu[3]){
+                    //promiseじゃない気がする。書き直し
+                    zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+                        resolve =>{
+                            console.log(resolve);
+                            zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
+                                resolve =>{
+                                    console.log(resolve);
+                                    idouadd(bunkatu);
+                                },
+                                reject => {
+                                    console.log(reject);
+                                }
+        
+                            );
+                        },
+                        reject => {
+                            console.log(reject);
+                        }
+
+                    )
+                }else{
+                    console.log("同じじゃん");
+                }
+            }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
+                var send = "";
+                if(bunkatu[0] == "収入"){
+                    send = "in";
+                }else{
+                    send = "out";
+                }
+
+                zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
+                    //アロー演算子ってマジで何なんだよ
+                    resolve =>{
+                        console.log(resolve);
+                        zougenAdd(bunkatu);
+                    },
+                    reject => {
+                        console.log(reject);
+                    }
+
+                );
+            }else{
+                console.log("POST受信データがおかしい");
+            }
+        }else{
+            console.log("日付関連のエラー");
+        }
+
+        console.log(postdata);
+        console.log(bunkatu);
+        Sfile("./index.html",res);
+        
+    });
+    
+}
+
+function ajaxsyori(req,res){
+    var postdata="";
+    //データ受け取り部分
+    req.on("data",function(data){
+        postdata += data;
+    });
+    req.on("end",function(){
+        console.log(postdata);
+        //送られてきたデータの先頭によって、何の要求かを判断する
+
 
         /*　bgein　は最初のリクエスト時にindex.jsonをAjaxで要求されたときの先頭
           既に作成されてあるため、そのまま送れる*/
+        //switch(postdata){
         if (postdata === "begin"){
             res.writeHead(200,{"Content-Type": "application/json"});
             Sfile("./sub/index.json",res);
@@ -220,81 +319,12 @@ function postshori(req,res){
             送られてきた内容を分割してSQLjsonに処理を移す*/
             let splitdata = postdata.split(",");
             SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
-        }else{
-            console.log(bunkatu);
-            bunkatu=postdata.split("&");
-
-            for(let lop=0;lop<bunkatu.length;lop++){
-                let bunkatuiti,taisyo = "";
-                //長いほうのデコードだと特殊記号も変換できる
-                //ただし半角スペースが+になったからreplace
-                //data = data.replace(/</g,'&lt;');
-                bunkatu[lop] = bunkatu[lop].replace(/\+/g," ");
-                taisyo = decodeURIComponent(bunkatu[lop]);
-                bunkatuiti = taisyo.indexOf("=");
-                //そのままだと = も含まれた
-                bunkatu[lop] = taisyo.substr(bunkatuiti+1);
-            }
-            // bunkatu[0]は分類
-            if( !(Henkan(bunkatu[5]) == "error") ){
-                if( bunkatu[0] == "移動"){
-                    if(bunkatu[2] != bunkatu[3]){
-                        //promiseじゃない気がする。書き直し
-                        zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
-                            resolve =>{
-                                console.log(resolve);
-                                zaisanAdd("in",bunkatu[3],bunkatu[1]).then(
-                                    resolve =>{
-                                        console.log(resolve);
-                                        idouadd(bunkatu);
-                                    },
-                                    reject => {
-                                        console.log(reject);
-                                    }
-            
-                                );
-                            },
-                            reject => {
-                                console.log(reject);
-                            }
-
-                        )
-                    }else{
-                        console.log("同じじゃん");
-                    }
-                }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
-                    var send = "";
-                    if(bunkatu[0] == "収入"){
-                        send = "in";
-                    }else{
-                        send = "out";
-                    }
-
-                    zaisanAdd(send,bunkatu[1],bunkatu[2]).then(
-                        //アロー演算子ってマジで何なんだよ
-                        resolve =>{
-                            console.log(resolve);
-                            zougenAdd(bunkatu);
-                        },
-                        reject => {
-                            console.log(reject);
-                        }
-
-                    );
-                }else{
-                    console.log("POST受信データがおかしい");
-                }
-            }else{
-                console.log("日付関連のエラー");
-            }
-
-            console.log(postdata);
-            console.log(bunkatu);
-            Sfile("./index.html",res);
         }
     });
     
 }
+
+
 
 
 
@@ -320,6 +350,7 @@ function forHTML(data){
 
 function SQLjson(path,res,code,zou,ido,vec){
     //console.log("ここまで");
+
     console.log(code,zou,ido,vec);
     res.writeHead(200,{"Content-Type": "application/json"});
     let Jstatus;
