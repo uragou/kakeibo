@@ -298,32 +298,68 @@ function ajaxsyori(req,res){
         postdata += data;
     });
     req.on("end",function(){
-        console.log(postdata);
         //送られてきたデータの先頭によって、何の要求かを判断する
 
+        let splitdata = postdata.split(",");
+        console.log(splitdata);
 
-        /*　bgein　は最初のリクエスト時にindex.jsonをAjaxで要求されたときの先頭
-          既に作成されてあるため、そのまま送れる*/
-        //switch(postdata){
-        if (postdata === "begin"){
-            res.writeHead(200,{"Content-Type": "application/json"});
-            Sfile("./sub/index.json",res);
-        }else if (postdata === "default"){
-        /*　default　は最初のリクエスト時にSdata.jsonをAjaxで要求されたときの先頭
-          データベースからデータを取り出す際に使われるファイルであり、要求された時点で自分で生成するため
-          SQL関連の処理をするSQLjsonに移動する*/
-            SQLjson("./sub/Sdata.json",res,"default",0,0,"default");
-        }else if(postdata.substr(0,4) === "ajax"){
-          /*　ajax　は家計簿内の四つのボタンを押したときに送られるAjaxによる要求の先頭
-            基本的な内容はdefaultと処理は同じだが、データベースから取り出す位置は押されたボタンの内容によって変わるため
-            送られてきた内容を分割してSQLjsonに処理を移す*/
-            let splitdata = postdata.split(",");
-            SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
+        switch(splitdata[0]){
+            case "begin":
+                /*　bgein　は最初のリクエスト時にindex.jsonをAjaxで要求されたときの先頭
+                既に作成されてあるため、そのまま送れる*/
+                res.writeHead(200,{"Content-Type": "application/json"});
+                Sfile("./sub/index.json",res);
+                break;
+            case "default":
+                /*　default　は最初のリクエスト時にSdata.jsonをAjaxで要求されたときの先頭
+                データベースからデータを取り出す際に使われるファイルであり、要求された時点で自分で生成するため
+                SQL関連の処理をするSQLjsonに移動する*/
+                SQLjson("./sub/Sdata.json",res,"default",0,0,"default");
+                break;
+            case "ajax":
+                /*　ajax　は家計簿内の四つのボタンを押したときに送られるAjaxによる要求の先頭
+                基本的な内容はdefaultと処理は同じだが、データベースから取り出す位置は押されたボタンの内容によって変わるため
+                送られてきた内容を分割してSQLjsonに処理を移す*/
+                SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
+                break;
+            case "delete":
+                Sakujo(splitdata[1],splitdata[4]);
+                //削除処理の前にjson作らないか心配
+                SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],"default");
+                break;
+            default:
+                console.log("謎のajaxが来たエラー by ajaxsyori");
+                break;
         }
     });
-    
 }
 
+function Sakujo(Taisyo,Id){
+    Id = parseInt(Id);
+    
+    if( Taisyo === "zougen" || Taisyo === "idou"){
+        insertData = "DELETE FROM "  + Taisyo + hdate + " WHERE id = " + Id;
+        connection.query(insertData, function (err, results) {
+            console.log(Taisyo + " テーブルのID= " + Id +" を削除する ");
+        });
+    }else{
+        console.log("存在しないテーブルを狙われるエラー　by Sakujo");
+    }
+}
+/* 自分よ！！ここでデータの削除は成功しているが、上部の保管データをまだ修正できていないぞ！！
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------- */
 
 
 
@@ -397,6 +433,7 @@ function SQLjson(path,res,code,zou,ido,vec){
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
         IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 5;';
     }else{
+        
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ zou +'  ORDER BY id DESC LIMIT 10';
         IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ ido +'  ORDER BY id DESC LIMIT 5';
     }
