@@ -40,8 +40,6 @@ let connection = mysql.createConnection(dbConfig);
 connection.connect();
 //始めに一度だけinit関数を呼ぶ
 init();
-
-
 //--------------------------------------------------------------------たまに動く関数たち---------------------------------------------------------------
 
 /*  テーブルがあるかどうか作成
@@ -104,7 +102,7 @@ function UpdateTables(){
         //console.log('--- results ---');
         //console.log(results);
         for(let lop=0; lop < results.length ;lop++){
-            AddData("INSERT INTO zaihistory (zaisanID,name,kane,time) VALUES( "+ results[lop].id +",'"+results[lop].name+"',"+results[lop].kane+",DATE(NOW()) );");
+            AddData("INSERT INTO zaihistory (name,kane,time) VALUES( '"+results[lop].name+"',"+results[lop].kane+",DATE(NOW()) );");
         }
     });
 }
@@ -128,10 +126,6 @@ function AddData(NewData){
   バイナリデータならBSfile関数に移動する
   POSTの場合はpostshoriに移動する */
 function getdata(req,res){
-    //console.log(req);
-    console.log("---------------");
-    //console.log(res);
-    console.log(req.url);
     if(req.method == "GET"){
 
         if(req.url == "/"){
@@ -188,7 +182,6 @@ function Sfile(path,res){
             console.log(err);
         }
         res.end(data);
-        console.log("転送");
     });
 }
 function BSfile(path,res){
@@ -198,7 +191,6 @@ function BSfile(path,res){
             console.log(err);
         }
         res.end(data);
-        console.log("転送");
     });
 }
 
@@ -299,9 +291,7 @@ function ajaxsyori(req,res){
     });
     req.on("end",function(){
         //送られてきたデータの先頭によって、何の要求かを判断する
-
         let splitdata = postdata.split(",");
-        console.log(splitdata);
 
         switch(splitdata[0]){
             case "begin":
@@ -339,6 +329,25 @@ function Sakujo(Taisyo,Id){
     
     if( Taisyo === "zougen" || Taisyo === "idou"){
         insertData = "DELETE FROM "  + Taisyo + hdate + " WHERE id = " + Id;
+        if( Taisyo === "zougen"){
+            SakujoZo1(Id).then(
+                suc =>{
+                    console.log(suc);
+                    return SakujoZo2(suc);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
+                    console.log(suc);
+                    return SakujoZo3(suc);
+                },
+                err =>{
+                    console.log(err);
+                }
+            );
+        }
         connection.query(insertData, function (err, results) {
             console.log(Taisyo + " テーブルのID= " + Id +" を削除する ");
         });
@@ -346,7 +355,58 @@ function Sakujo(Taisyo,Id){
         console.log("存在しないテーブルを狙われるエラー　by Sakujo");
     }
 }
-/* 自分よ！！ここでデータの削除は成功しているが、上部の保管データをまだ修正できていないぞ！！
+
+//まずは該当データから金額など必要データを手に入れる
+function SakujoZo1(Id){
+    return new Promise((resolve,reject) => {
+        let insertData = "SELECT bunrui,basyo,kane FROM zougen" + hdate + " WHERE id = " + Id;
+        connection.query(insertData, function (err, results) {
+            if(err){
+                reject("１つ目のクエリで失敗　by SakujoZo1");
+            }else{
+                let obj = new Object();
+                obj.basyo = results[0].basyo;
+                obj.kane = results[0].kane; 
+                if(results[0].bunrui === "収入"){
+                    obj.kane = -1 * obj.kane;
+                }
+                resolve(obj);
+            }
+        });
+    });
+}
+//次にzaisanデータから金額を取り出し、
+function SakujoZo2(obj){
+    return new Promise((resolve,reject) => {
+        let insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.basyo + "'";
+        connection.query(insertData, function (err, results) {
+            if(err){
+                reject("２つ目のクエリで失敗　by SakujoZo2");
+            }else{
+                obj.kane = obj.kane + results[0].kane;
+                if(obj.kane >= 0){
+                    resolve(obj);
+                }else{
+                    reject("２つ目のクエリで金額矛盾　by SakujoZo2");
+                }
+            }
+        });
+    });
+}
+//zaisanテーブルから指定金額を削除する
+function SakujoZo3(obj){
+    return new Promise((resolve,reject) => {
+        let insertData  ="UPDATE zaisan SET kane = " + obj.kane + " WHERE name = '" + obj.basyo + "'";
+        connection.query(insertData, function (err, results) {
+            if(err){
+                reject("３つ目のクエリで失敗　by SakujoZo3");
+            }else{
+                resolve(obj);
+            }
+        });
+    });
+}
+/* 先にajaxだ！！
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
