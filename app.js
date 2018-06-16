@@ -8,6 +8,8 @@ let server = http.createServer();
 server.listen(port, function(){
     console.log('listening on *:'+port);
 });
+const MAE = 1;
+const ATO = 2;
 
 //今日の日付を取得、1月ごとのデータを格納するのに使用する。
 let date = new Date();
@@ -275,8 +277,8 @@ function BSfile(path,res){
             console.log("日付関連のエラー");
         }
 
-        console.log(postdata);
-        console.log(bunkatu);
+        //console.log(postdata);
+        //console.log(bunkatu);
         Sfile("./index.html",res);
         
     });
@@ -325,14 +327,12 @@ function ajaxsyori(req,res){
 
 function Sakujo(postdata,res){
     let splitdata = postdata.split(",");
+    //id は数値のみなので数値以外ならエラー起こす
     splitdata[4] = parseInt(splitdata[4]);
-
-    insertData = "DELETE FROM "  + splitdata[1]  + hdate + " WHERE id = " + splitdata[4];
     if( splitdata[1] === "zougen" || splitdata[1] === "idou"){
         if( splitdata[1] === "zougen"){
             SakujoZo1(splitdata[4]).then(
                 suc =>{
-                    console.log(suc);
                     return SakujoZo2(suc);
                 },
                 err =>{
@@ -340,7 +340,6 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(suc);
                     return SakujoZo3(suc);
                 },
                 err =>{
@@ -348,8 +347,15 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(suc);
+                    return SakujoZo4(suc);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
                     //削除処理の前にjson作らないか心配
+                    console.log(splitdata[1] + " テーブルのID= " + splitdata[4] +" を削除する ");
                     SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],"default");
                 },
                 err =>{
@@ -357,6 +363,30 @@ function Sakujo(postdata,res){
                 }
             );
         }else if( splitdata[1] === "idou"){
+            SakujoId1(splitdata[4]).then(
+                suc =>{
+                    console.log(suc);
+                    return SakujoId2(suc,MAE);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
+                    console.log(suc);
+                    return SakujoId2(suc,ATO);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
+                    console.log(suc);
+                },
+                err =>{
+                    console.log(err);
+                }
+            );
             /*-----------------------------------------------------------------------------
             ------------------------------------------------------------------------------
             --------------------------------------------------------------------------------
@@ -382,23 +412,22 @@ function Sakujo(postdata,res){
         }else{
             console.log("存在しないテーブル");
         }
-        connection.query(insertData, function (err, results) {
-            console.log(splitdata[1] + " テーブルのID= " + splitdata[4] +" を削除する ");
-        });
     }else{
         console.log("存在しないテーブルを狙われるエラー　by Sakujo");
     }
 }
 
 //まずは該当データから金額など必要データを手に入れる
+//この時点での金額データは足し引きする金額
 function SakujoZo1(Id){
     return new Promise((resolve,reject) => {
         let insertData = "SELECT bunrui,basyo,kane FROM zougen" + hdate + " WHERE id = " + Id;
         connection.query(insertData, function (err, results) {
             if(err){
-                reject("１つ目のクエリで失敗　by SakujoZo1");
+                reject("クエリ1で失敗　by SakujoZo1");
             }else{
                 let obj = new Object();
+                obj.id = Id;
                 obj.basyo = results[0].basyo;
                 obj.kane = results[0].kane; 
                 if(results[0].bunrui === "収入"){
@@ -409,19 +438,20 @@ function SakujoZo1(Id){
         });
     });
 }
-//次にzaisanデータから金額を取り出し、
+//次にzaisanデータから金額を取り出す
+//この時点からの金額データは足し引き後の金額
 function SakujoZo2(obj){
     return new Promise((resolve,reject) => {
         let insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.basyo + "'";
         connection.query(insertData, function (err, results) {
             if(err){
-                reject("２つ目のクエリで失敗　by SakujoZo2");
+                reject("クエリ2で失敗　by SakujoZo2");
             }else{
                 obj.kane = obj.kane + results[0].kane;
                 if(obj.kane >= 0){
                     resolve(obj);
                 }else{
-                    reject("２つ目のクエリで金額矛盾　by SakujoZo2");
+                    reject("クエリ2で金額矛盾　by SakujoZo2");
                 }
             }
         });
@@ -433,7 +463,7 @@ function SakujoZo3(obj){
         let insertData  ="UPDATE zaisan SET kane = " + obj.kane + " WHERE name = '" + obj.basyo + "'";
         connection.query(insertData, function (err, results) {
             if(err){
-                reject("３つ目のクエリで失敗　by SakujoZo3");
+                reject("クエリ3で失敗　by SakujoZo3");
             }else{
                 resolve(obj);
             }
@@ -441,19 +471,92 @@ function SakujoZo3(obj){
     });
 }
 
-//まずは該当データから金額など必要データを手に入れる
+//最後にzougenテーブルから削除する
+function SakujoZo4(obj){
+    return new Promise((resolve,reject) => {
+        let insertData = "DELETE FROM zougen"+ hdate + " WHERE id = " + obj.id;
+        connection.query(insertData, function (err, results) {
+            if(err){
+                reject("クエリ4で失敗　by SakujoZo4");
+            }else{
+                resolve(obj);
+            }
+        });
+    });
+}
+
+/*まずは該当データから金額など必要データを手に入れる
+    移動データは二つのzaisanデータを書き換える*/
 function SakujoId1(Id){
     return new Promise((resolve,reject) => {
         let insertData = "SELECT kane,mae,ato FROM idou" + hdate + " WHERE id = " + Id;
         connection.query(insertData, function (err, results) {
             if(err){
-                reject("１つ目のクエリで失敗　by SakujoZo1");
+                reject("クエリ1で失敗　by SakujoZo1");
             }else{
                 let obj = new Object();
                 obj.mae = results[0].mae;
-                obj.mae = results[0].ato;
-                obj.kane = results[0].kane; 
+                obj.ato = results[0].ato;
+                obj.mkane = results[0].kane;
+                obj.akane = -1*results[0].kane;
+                //maeのデータは増えるのでそのまま、atoのデータは減るので-してる
                 resolve(obj);
+            }
+        });
+    });
+}
+
+function SakujoId2(obj,num){
+    return new Promise((resolve,reject) => {
+        let insertData = "";
+        if(num === MAE){
+            insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.mae + "'";
+        }else if(num === ATO){
+            insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.ato + "'";
+        }else{
+            reject("クエリ2で謎クエリができる　by SakujoZo2");
+        }
+        connection.query(insertData, function (err, results) {
+            if(err){
+                reject("クエリ2-"+ num +"で失敗　by SakujoZo2");
+            }else{
+
+                if(num === MAE){
+                    obj.mkane = obj.mkane + results[0].kane;
+                    if(obj.mkane >= 0){
+                        resolve(obj);
+                    }else{
+                        reject("クエリ2で金額矛盾　by SakujoZo2");
+                    }
+
+                }else if(num === ATO){
+                    obj.akane = obj.akane + results[0].kane;
+                    if(obj.akane >= 0){
+                        resolve(obj);
+                    }else{
+                        reject("クエリ2で金額矛盾　by SakujoZo2");
+                    }
+
+                }else{
+                    reject("クエリ2で謎クエリができる　by SakujoZo2");
+                }
+            }
+        });
+    });
+}
+function SakujoZo2(obj){
+    return new Promise((resolve,reject) => {
+        let insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.basyo + "'";
+        connection.query(insertData, function (err, results) {
+            if(err){
+                reject("クエリ2で失敗　by SakujoZo2");
+            }else{
+                obj.kane = obj.kane + results[0].kane;
+                if(obj.kane >= 0){
+                    resolve(obj);
+                }else{
+                    reject("クエリ2で金額矛盾　by SakujoZo2");
+                }
             }
         });
     });

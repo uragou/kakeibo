@@ -93,10 +93,10 @@ function DelFunc(Table,Tid){
     }
     let Win = confirm("本当に削除しますか？");
     if(Win == true){
-        window.alert("削除しました");
-        console.log(Dtarget);
         ajax.open('POST','/sub/Sdata.json' , true);
         ajax.send(Dtarget);
+        window.alert("削除しました");
+        console.log(Dtarget);
     }
 }
 
