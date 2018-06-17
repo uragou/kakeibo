@@ -328,10 +328,10 @@ function ajaxsyori(req,res){
 function Sakujo(postdata,res){
     let splitdata = postdata.split(",");
     //id は数値のみなので数値以外ならエラー起こす
-    splitdata[4] = parseInt(splitdata[4]);
-    if( splitdata[1] === "zougen" || splitdata[1] === "idou"){
+    let ID = parseInt(splitdata[4]);
+    if( (splitdata[1] === "zougen" || splitdata[1] === "idou") && (ID > 0) ){
         if( splitdata[1] === "zougen"){
-            SakujoZo1(splitdata[4]).then(
+            SakujoZo1(ID).then(
                 suc =>{
                     return SakujoZo2(suc);
                 },
@@ -347,7 +347,7 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    return SakujoZo4(suc);
+                    return SakujoZo4(ID,splitdata[1]);
                 },
                 err =>{
                     console.log(err);
@@ -363,10 +363,16 @@ function Sakujo(postdata,res){
                 }
             );
         }else if( splitdata[1] === "idou"){
-            SakujoId1(splitdata[4]).then(
+            let mobj = new Object();
+            let aobj = new Object();
+            SakujoId1(ID).then(
                 suc =>{
                     console.log(suc);
-                    return SakujoId2(suc,MAE);
+                    mobj.basyo = suc.mae;
+                    mobj.kane = suc.mkane;
+                    aobj.basyo = suc.ato;
+                    aobj.kane = suc.akane;
+                    return SakujoZo2(mobj);
                 },
                 err =>{
                     console.log(err);
@@ -374,7 +380,18 @@ function Sakujo(postdata,res){
             ).then(
                 suc =>{
                     console.log(suc);
-                    return SakujoId2(suc,ATO);
+                    mobj = suc;
+                    return SakujoZo2(aobj);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
+                    console.log("sycsyc");
+                    console.log(suc);
+                    aobj = suc;
+                    return SakujoZo3(mobj);
                 },
                 err =>{
                     console.log(err);
@@ -382,33 +399,43 @@ function Sakujo(postdata,res){
             ).then(
                 suc =>{
                     console.log(suc);
+                    return SakujoZo3(aobj);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
+                    console.log(suc);
+                    return SakujoZo4(ID,splitdata[1]);
+                },
+                err =>{
+                    console.log(err);
+                }
+            ).then(
+                suc =>{
+                    console.log(suc);
+                    console.log(splitdata[1] + " テーブルのID= " + splitdata[4] +" を削除する ");
+                    SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],"default");
                 },
                 err =>{
                     console.log(err);
                 }
             );
-            /*-----------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------
-            ------------------------------------------------------------------------------
-            --------------------------------------------------------------------------------
-            -------------------------------------------------------------------------------*/
+            /*エラー時にエラーせずにそのまま実行し続けてしまう！！
+            金額矛盾が起きてもそのまま進めてマイナスの値を出す
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            -----------------------------------------------------------------
+            */
         }else{
             console.log("存在しないテーブル");
         }
@@ -427,7 +454,6 @@ function SakujoZo1(Id){
                 reject("クエリ1で失敗　by SakujoZo1");
             }else{
                 let obj = new Object();
-                obj.id = Id;
                 obj.basyo = results[0].basyo;
                 obj.kane = results[0].kane; 
                 if(results[0].bunrui === "収入"){
@@ -457,7 +483,7 @@ function SakujoZo2(obj){
         });
     });
 }
-//zaisanテーブルから指定金額を削除する
+//zaisanテーブルから指定金額を再計算する
 function SakujoZo3(obj){
     return new Promise((resolve,reject) => {
         let insertData  ="UPDATE zaisan SET kane = " + obj.kane + " WHERE name = '" + obj.basyo + "'";
@@ -472,21 +498,19 @@ function SakujoZo3(obj){
 }
 
 //最後にzougenテーブルから削除する
-function SakujoZo4(obj){
+function SakujoZo4(ID,Tget){
     return new Promise((resolve,reject) => {
-        let insertData = "DELETE FROM zougen"+ hdate + " WHERE id = " + obj.id;
+        let insertData = "DELETE FROM "+ Tget + hdate + " WHERE id = " + ID;
         connection.query(insertData, function (err, results) {
             if(err){
                 reject("クエリ4で失敗　by SakujoZo4");
             }else{
-                resolve(obj);
+                resolve(ID);
             }
         });
     });
 }
 
-/*まずは該当データから金額など必要データを手に入れる
-    移動データは二つのzaisanデータを書き換える*/
 function SakujoId1(Id){
     return new Promise((resolve,reject) => {
         let insertData = "SELECT kane,mae,ato FROM idou" + hdate + " WHERE id = " + Id;
@@ -501,62 +525,6 @@ function SakujoId1(Id){
                 obj.akane = -1*results[0].kane;
                 //maeのデータは増えるのでそのまま、atoのデータは減るので-してる
                 resolve(obj);
-            }
-        });
-    });
-}
-
-function SakujoId2(obj,num){
-    return new Promise((resolve,reject) => {
-        let insertData = "";
-        if(num === MAE){
-            insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.mae + "'";
-        }else if(num === ATO){
-            insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.ato + "'";
-        }else{
-            reject("クエリ2で謎クエリができる　by SakujoZo2");
-        }
-        connection.query(insertData, function (err, results) {
-            if(err){
-                reject("クエリ2-"+ num +"で失敗　by SakujoZo2");
-            }else{
-
-                if(num === MAE){
-                    obj.mkane = obj.mkane + results[0].kane;
-                    if(obj.mkane >= 0){
-                        resolve(obj);
-                    }else{
-                        reject("クエリ2で金額矛盾　by SakujoZo2");
-                    }
-
-                }else if(num === ATO){
-                    obj.akane = obj.akane + results[0].kane;
-                    if(obj.akane >= 0){
-                        resolve(obj);
-                    }else{
-                        reject("クエリ2で金額矛盾　by SakujoZo2");
-                    }
-
-                }else{
-                    reject("クエリ2で謎クエリができる　by SakujoZo2");
-                }
-            }
-        });
-    });
-}
-function SakujoZo2(obj){
-    return new Promise((resolve,reject) => {
-        let insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.basyo + "'";
-        connection.query(insertData, function (err, results) {
-            if(err){
-                reject("クエリ2で失敗　by SakujoZo2");
-            }else{
-                obj.kane = obj.kane + results[0].kane;
-                if(obj.kane >= 0){
-                    resolve(obj);
-                }else{
-                    reject("クエリ2で金額矛盾　by SakujoZo2");
-                }
             }
         });
     });
