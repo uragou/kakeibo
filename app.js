@@ -69,15 +69,79 @@ function init(){
 function Inittable(){
     let zailis = ["パスモ","銀行","自宅金","財布"];
     //jsonから持ってくるようにする！
-    connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
-        console.log("財産データベース作成中");
-    });
-    for(let lop=0 ;lop<zailis.length;lop++){
-        connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ zailis[lop] +"\",0);", function(err,results){
+    InittableFunc1().then(
+        suc => {
+            console.log(suc);
+            return InittableFunc2(zailis[0]);
+        },
+        err => {
+            console.log(err);
+        }
+    ).then(
+        suc => {
+            console.log(suc);
+            return InittableFunc2(zailis[1]);
+        },
+        err => {
+            console.log(err);
+        }
+    ).then(
+        suc => {
+            console.log(suc);
+            return InittableFunc2(zailis[2]);
+        },
+        err => {
+            console.log(err);
+        }
+    ).then(
+        suc => {
+            console.log(suc);
+            return InittableFunc2(zailis[3]);
+        },
+        err => {
+            console.log(err);
+        }
+    ).then(
+        suc => {
+            console.log(suc);
+            return InittableFunc3();
+        },
+        err => {
+            console.log(err);
+        }
+    )
+}
+function InittableFunc1(){
+    return new Promise( (resolve,reject) =>{
+        connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+            if(!(err)){
+                resolve("財産データベース作成中");
+            }else{
+                reject("財産データベース作成失敗 by InittableFunc1");
+            }
         });
-    }
-    connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
-        console.log("財産履歴データベース作成中");
+    });
+}
+function InittableFunc2(){
+    return new Promise( (resolve,reject) =>{
+        connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ data +"\",0);", function(err,results){
+            if(!(err)){
+                resolve("財産データ作成中");
+            }else{
+                reject("財産データ作成失敗 by InittableFunc2");
+            }
+        });
+    });
+}
+function InittableFunc3(){
+    return new Promise( (resolve,reject) =>{
+        connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
+            if(!(err)){
+                resolve("財産履歴作成中");
+            }else{
+                reject("財産履歴作成失敗 by InittableFunc3");
+            }
+        });
     });
 }
 
@@ -337,6 +401,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -344,6 +409,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -351,6 +417,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -376,6 +443,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -385,6 +453,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -394,7 +463,9 @@ function Sakujo(postdata,res){
                     return SakujoZo3(mobj);
                 },
                 err =>{
+                    console.log("2月2222222222222222");
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -403,6 +474,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -411,6 +483,7 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    return ErrFunc();
                 }
             ).then(
                 suc =>{
@@ -443,7 +516,11 @@ function Sakujo(postdata,res){
         console.log("存在しないテーブルを狙われるエラー　by Sakujo");
     }
 }
-
+function ErrFunc(){
+    return new Promise( (resolve,reject) =>{
+        reject(" ");
+    });
+}
 //まずは該当データから金額など必要データを手に入れる
 //この時点での金額データは足し引きする金額
 function SakujoZo1(Id){
