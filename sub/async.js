@@ -28,6 +28,8 @@ ajax.onloadend = function(){
             if(JsonData.status === "default"){
                 BeginFunc();
             }
+        }else if(JsonData.status === "error"){
+            window.alert("削除に失敗しました。処理に矛盾があります。");
         }
         //ここに結果が来ている
     }
@@ -82,11 +84,11 @@ leftzougen.addEventListener("click",function(ev){
 function DelFunc(Table,Tid){
     let Dtarget;
     if(Table === "Z"){
-        console.log(JsonData.zougen[Tid].id);
-        Dtarget = "delete,zougen," + zougenvalue + "," + idouvalue+ "," + JsonData.zougen[Tid].id;
+        console.log(Tid);
+        Dtarget = "delete,zougen," + zougenvalue + "," + idouvalue+ "," + Tid;
     }else if(Table === "I"){
-        console.log(JsonData.idou[Tid].id);
-        Dtarget = "delete,idou," + zougenvalue + "," + idouvalue+ "," + JsonData.idou[Tid].id;
+        console.log(Tid);
+        Dtarget = "delete,idou," + zougenvalue + "," + idouvalue+ "," + Tid;
     }else{
         window.alert("ブラウザ内でのエラー");
         return;
@@ -95,7 +97,6 @@ function DelFunc(Table,Tid){
     if(Win == true){
         ajax.open('POST','/sub/Sdata.json' , true);
         ajax.send(Dtarget);
-        window.alert("削除しました");
         console.log(Dtarget);
     }
 }
@@ -190,7 +191,7 @@ function SQLfunc(JsonData){
             }else{
                 tr.setAttribute("class","okane");
             }
-            tr.setAttribute("onDblClick","DelFunc('Z',"+ lop +")");
+            tr.setAttribute("onDblClick","DelFunc('Z',"+ JsonData.zougen[lop].id +")");
             //この書き方により、各データをダブルクリックしたときのイベントを登録できる
 
             kanetd.setAttribute("class","kane");
@@ -237,7 +238,7 @@ function SQLfunc(JsonData){
             let timetd = document.createElement("td");
 
             tr.setAttribute("class","ukane");
-            tr.setAttribute("onDblClick","DelFunc('I',"+ lop +")");
+            tr.setAttribute("onDblClick","DelFunc('I',"+ JsonData.idou[lop].id +")");
             //この書き方により、各データをダブルクリックしたときのイベントを登録できる
 
             kanetd.setAttribute("class","kane");

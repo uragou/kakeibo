@@ -427,6 +427,12 @@ function Sakujo(postdata,res){
                 },
                 err =>{
                     console.log(err);
+                    res.writeHead(200,{"Content-Type": "application/json"});
+                    let obj = new Object();
+                    obj.status = "error";
+                    obj.Func = "Sakujo";
+                    obj = JSON.stringify(obj);
+                    res.end(obj);
                 }
             );
         }else if( splitdata[1] === "idou"){
@@ -434,7 +440,6 @@ function Sakujo(postdata,res){
             let aobj = new Object();
             SakujoId1(ID).then(
                 suc =>{
-                    console.log(suc);
                     mobj.basyo = suc.mae;
                     mobj.kane = suc.mkane;
                     aobj.basyo = suc.ato;
@@ -447,7 +452,6 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(suc);
                     mobj = suc;
                     return SakujoZo2(aobj);
                 },
@@ -457,19 +461,15 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log("sycsyc");
-                    console.log(suc);
                     aobj = suc;
                     return SakujoZo3(mobj);
                 },
                 err =>{
-                    console.log("2月2222222222222222");
                     console.log(err);
                     return ErrFunc();
                 }
             ).then(
                 suc =>{
-                    console.log(suc);
                     return SakujoZo3(aobj);
                 },
                 err =>{
@@ -478,7 +478,6 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(suc);
                     return SakujoZo4(ID,splitdata[1]);
                 },
                 err =>{
@@ -487,28 +486,19 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(suc);
                     console.log(splitdata[1] + " テーブルのID= " + splitdata[4] +" を削除する ");
                     SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],"default");
                 },
                 err =>{
                     console.log(err);
+                    res.writeHead(200,{"Content-Type": "application/json"});
+                    let obj = new Object();
+                    obj.status = "error";
+                    obj.Func = "Sakujo";
+                    obj = JSON.stringify(obj);
+                    res.end(obj);
                 }
             );
-            /*エラー時にエラーせずにそのまま実行し続けてしまう！！
-            金額矛盾が起きてもそのまま進めてマイナスの値を出す
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            -----------------------------------------------------------------
-            */
         }else{
             console.log("存在しないテーブル");
         }
