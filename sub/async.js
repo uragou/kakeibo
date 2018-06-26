@@ -7,6 +7,10 @@ var idouvalue = 0;
 let leftzougen = document.getElementById("zougenup");
 let rightzougen = document.getElementById("zougenback");
 var zougenvalue = 0;
+const IDOU = "idou";
+const ZOUGEN = "zougen";
+const UP = "up";
+const DOWN = "down";
 //loadイベントにてロードしたらイベントが起こる
 //openに内容を書いてsendで送る。
 
@@ -57,25 +61,44 @@ zougenデータはそのままにidouデータは最初に表示されている�
 古い履歴を見るか、新しいデータを見るかを決める「up」「down」
 */
 rightidou.addEventListener("click",function(ev){
+    let obj = new Object();
+    obj = JsonCreate(obj,IDOU,DOWN);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",down");
 });
 
 leftidou.addEventListener("click",function(ev){
+    let obj = new Object();
+    obj = JsonCreate(obj,IDOU,UP);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",up");
 });
 
 rightzougen.addEventListener("click",function(ev){
+    let obj = new Object();
+    obj = JsonCreate(obj,ZOUGEN,DOWN);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",down");
 });
 
 
 leftzougen.addEventListener("click",function(ev){
+    let obj = new Object();
+    obj = JsonCreate(obj,ZOUGEN,UP);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",up");
 });
+
+function JsonCreate(obj,type,vec){
+    obj.status = "ajax";
+    obj.type = type;
+    obj.zougenMax = zougenvalue;
+    obj.idouMax = idouvalue;
+    obj.vec = vec;
+    obj = JSON.stringify(obj);
+    console.log(obj);
+    return obj;
+}
 
 /*  テーブルを削除する処理、各テーブルのデータにあるイベント（ダブルクリックにより発生する）で実行される。
 　そのデータのテーブル種類と場所を示す値をもとに、Sdata.json内のデータからIDを探す。
