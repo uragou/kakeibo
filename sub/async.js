@@ -3,10 +3,12 @@ let JsonData;
 //ajax用のやつを作った。
 let leftidou = document.getElementById("idouup");
 let rightidou = document.getElementById("idouback");
-var idouvalue = 0;
+let idouMax = 0;
+let idouMin = 0;
 let leftzougen = document.getElementById("zougenup");
 let rightzougen = document.getElementById("zougenback");
-var zougenvalue = 0;
+let zougenMax = 0;
+let zougenMin = 0;
 const IDOU = "idou";
 const ZOUGEN = "zougen";
 const UP = "up";
@@ -47,7 +49,10 @@ ajax.openの第三引数は非同期かどうかを決める引数であり、fa
 function init(){
     //非同期　false じゃないと連続で受け取れない
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("default");
+    let obj = new Object();
+    obj.status = "default";
+    obj = JSON.stringify(obj);
+    ajax.send(obj);
 };
 
 
@@ -57,46 +62,60 @@ function init(){
 zougenデータはそのままにidouデータは最初に表示されているデータより、10件古いデータを送ってくる。
 これにより各データの履歴を参照することができる。
 送る内容は、まずajaxであることを示す「ajax」どちらの履歴をたどるかを示す「zougen」or「idou」
-今、何件目のデータを表示しているかを示す「zougenvalue」「idouvalue」
+今、何件目のデータを表示しているかを示す「zougenMax」「idouMax」「zougenMin」「idouMin」
 古い履歴を見るか、新しいデータを見るかを決める「up」「down」
 */
 rightidou.addEventListener("click",function(ev){
     let obj = new Object();
-    obj = JsonCreate(obj,IDOU,DOWN);
+    obj = JsonCreate(obj,"ajax",IDOU,DOWN);
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",down");
+    ajax.send(obj);
 });
 
 leftidou.addEventListener("click",function(ev){
     let obj = new Object();
-    obj = JsonCreate(obj,IDOU,UP);
+    obj = JsonCreate(obj,"ajax",IDOU,UP);
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,idou," + zougenvalue + "," + idouvalue + ",up");
+    ajax.send(obj);
 });
 
 rightzougen.addEventListener("click",function(ev){
     let obj = new Object();
-    obj = JsonCreate(obj,ZOUGEN,DOWN);
+    obj = JsonCreate(obj,"ajax",ZOUGEN,DOWN);
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",down");
+    ajax.send(obj);
 });
 
 
 leftzougen.addEventListener("click",function(ev){
     let obj = new Object();
-    obj = JsonCreate(obj,ZOUGEN,UP);
+    obj = JsonCreate(obj,"ajax",ZOUGEN,UP);
     ajax.open('POST','/sub/Sdata.json' , true);
-    ajax.send("ajax,zougen," + zougenvalue + "," + idouvalue + ",up");
+    ajax.send(obj);
 });
 
-function JsonCreate(obj,type,vec){
-    obj.status = "ajax";
+function JsonCreate(obj,status,type,op){
+    obj.status = status;
     obj.type = type;
-    obj.zougenMax = zougenvalue;
-    obj.idouMax = idouvalue;
-    obj.vec = vec;
+    obj.zougen = {
+        "Max" : zougenMax,
+        "Min" : zougenMin
+    };
+    obj.idou = {
+        "Max" : idouMax,
+        "Min" : idouMin
+    };
+    switch(status){
+        case "ajax":
+            obj.vec = op;
+            break;
+        case "delete":
+            obj.Target = op;
+            break;
+        default:
+            break;
+    }
     obj = JSON.stringify(obj);
-    console.log(obj);
     return obj;
 }
 
@@ -106,12 +125,15 @@ function JsonCreate(obj,type,vec){
 */
 function DelFunc(Table,Tid){
     let Dtarget;
+    let obj = new Object();
     if(Table === "Z"){
+        obj = JsonCreate(obj,"delete",ZOUGEN,Tid);
         console.log(Tid);
-        Dtarget = "delete,zougen," + zougenvalue + "," + idouvalue+ "," + Tid;
+        Dtarget = "delete,zougen," + zougenMax + "," + idouMax+ "," + Tid;
     }else if(Table === "I"){
+        obj = JsonCreate(obj,"delete",IDOU,Tid);
         console.log(Tid);
-        Dtarget = "delete,idou," + zougenvalue + "," + idouvalue+ "," + Tid;
+        Dtarget = "delete,idou," + zougenMax + "," + idouMax+ "," + Tid;
     }else{
         window.alert("ブラウザ内でのエラー");
         return;
@@ -119,8 +141,7 @@ function DelFunc(Table,Tid){
     let Win = confirm("本当に削除しますか？");
     if(Win == true){
         ajax.open('POST','/sub/Sdata.json' , true);
-        ajax.send(Dtarget);
-        console.log(Dtarget);
+        ajax.send(obj);
     }
 }
 
@@ -196,7 +217,8 @@ function SQLfunc(JsonData){
         }
         zougendatajs.appendChild(zoufrag);
 
-        zougenvalue = JsonData.zougen[0].id;
+        zougenMax = JsonData.zougen[0].id;
+        zougenMin = JsonData.zougen[JsonData.zougen.length-1].id;
 
         for(let lop=0;lop<JsonData.zougen.length;lop++){
 
@@ -248,7 +270,8 @@ function SQLfunc(JsonData){
             idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
         }
         idoudatajs.appendChild(idoufrag);
-        idouvalue = JsonData.idou[0].id;
+        idouMax = JsonData.idou[0].id;
+        idouMin = JsonData.idou[JsonData.idou.length-1].id;
 
         for(let lop=0;lop<JsonData.idou.length;lop++){
 

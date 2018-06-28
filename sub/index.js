@@ -78,7 +78,10 @@ begin.onloadend = function(){
 */
 function BeginFunc(){
     begin.open('POST','/sub/index.json' , true);
-    begin.send("begin");
+    let obj = new Object();
+    obj.status = "begin";
+    obj = JSON.stringify(obj);
+    begin.send(obj);
 };
 
 /*

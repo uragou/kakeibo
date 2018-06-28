@@ -353,10 +353,9 @@ function ajaxsyori(req,res){
     });
     req.on("end",function(){
         //送られてきたデータの先頭によって、何の要求かを判断する
-        let splitdata = postdata.split(",");
-        console.log(postdata);
+        postdata = JSON.parse(postdata);
 
-        switch(splitdata[0]){
+        switch(postdata.status){
             case "begin":
                 /*　bgein　は最初のリクエスト時にindex.jsonをAjaxで要求されたときの先頭
                 既に作成されてあるため、そのまま送れる*/
@@ -373,7 +372,7 @@ function ajaxsyori(req,res){
                 /*　ajax　は家計簿内の四つのボタンを押したときに送られるAjaxによる要求の先頭
                 基本的な内容はdefaultと処理は同じだが、データベースから取り出す位置は押されたボタンの内容によって変わるため
                 送られてきた内容を分割してSQLjsonに処理を移す*/
-                SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],splitdata[4]);
+                SQLjson("./sub/Sdata.json",res,postdata.type,postdata.zougen.Max,postdata.idou.Max,postdata.vec);
                 break;
             case "delete":
                 Sakujo(postdata,res);
@@ -386,11 +385,11 @@ function ajaxsyori(req,res){
 }
 
 function Sakujo(postdata,res){
-    let splitdata = postdata.split(",");
+    console.log(postdata);
     //id は数値のみなので数値以外ならエラー起こす
-    let ID = parseInt(splitdata[4]);
-    if( (splitdata[1] === "zougen" || splitdata[1] === "idou") && (ID > 0) ){
-        if( splitdata[1] === "zougen"){
+    let ID = parseInt(postdata.Target);
+    if( (postdata.type === "zougen" || postdata.type === "idou") && (ID > 0) ){
+        if( postdata.type === "zougen"){
             SakujoZo1(ID).then(
                 suc =>{
                     return SakujoZo2(suc);
@@ -409,7 +408,7 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    return SakujoZo4(ID,splitdata[1]);
+                    return SakujoZo4(ID,postdata.type);
                 },
                 err =>{
                     console.log(err);
@@ -418,8 +417,8 @@ function Sakujo(postdata,res){
             ).then(
                 suc =>{
                     //削除処理の前にjson作らないか心配
-                    console.log(splitdata[1] + " テーブルのID= " + splitdata[4] +" を削除する ");
-                    SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],"default");
+                    console.log(postdata.type + " テーブルのID= " + postdata.Target +" を削除する ");
+                    SQLjson("./sub/Sdata.json",res,postdata.type,postdata.zougen.Max,postdata.idou.Max,"default");
                 },
                 err =>{
                     console.log(err);
@@ -431,7 +430,7 @@ function Sakujo(postdata,res){
                     res.end(obj);
                 }
             );
-        }else if( splitdata[1] === "idou"){
+        }else if( postdata.type === "idou"){
             let mobj = new Object();
             let aobj = new Object();
             SakujoId1(ID).then(
@@ -474,7 +473,7 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    return SakujoZo4(ID,splitdata[1]);
+                    return SakujoZo4(ID,postdata.type);
                 },
                 err =>{
                     console.log(err);
@@ -482,8 +481,8 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(splitdata[1] + " テーブルのID= " + splitdata[4] +" を削除する ");
-                    SQLjson("./sub/Sdata.json",res,splitdata[1],splitdata[2],splitdata[3],"default");
+                    console.log(splitdata[1] + " テーブルのID= " + postdata.Target +" を削除する ");
+                    SQLjson("./sub/Sdata.json",res,postdata.type,postdata.zougen.Max,postdata.idou.Max,"default");
                 },
                 err =>{
                     console.log(err);
