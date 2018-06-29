@@ -8,15 +8,11 @@ let server = http.createServer();
 server.listen(port, function(){
     console.log('listening on *:'+port);
 });
-const MAE = 1;
-const ATO = 2;
 
 //今日の日付を取得、1月ごとのデータを格納するのに使用する。
 let date = new Date();
 let hdate = "";
 let Today = "";
-let NowMaxzougen;
-let NowMaxidou;
 
 //new Dateは0～11で月を返すので01~12に修正している。
 //hdateはテーブルを作成するための年と月で、Todayは送信データを調べるための年、月、日
@@ -366,13 +362,13 @@ function ajaxsyori(req,res){
                 /*　default　は最初のリクエスト時にSdata.jsonをAjaxで要求されたときの先頭
                 データベースからデータを取り出す際に使われるファイルであり、要求された時点で自分で生成するため
                 SQL関連の処理をするSQLjsonに移動する*/
-                SQLjson("./sub/Sdata.json",res,"default",0,0,"default");
+                SQLjson("./sub/Sdata.json",res,postdata);
                 break;
             case "ajax":
                 /*　ajax　は家計簿内の四つのボタンを押したときに送られるAjaxによる要求の先頭
                 基本的な内容はdefaultと処理は同じだが、データベースから取り出す位置は押されたボタンの内容によって変わるため
                 送られてきた内容を分割してSQLjsonに処理を移す*/
-                SQLjson("./sub/Sdata.json",res,postdata.type,postdata.zougen.Max,postdata.idou.Max,postdata.vec);
+                SQLjson("./sub/Sdata.json",res,postdata);
                 break;
             case "delete":
                 Sakujo(postdata,res);
@@ -418,7 +414,7 @@ function Sakujo(postdata,res){
                 suc =>{
                     //削除処理の前にjson作らないか心配
                     console.log(postdata.type + " テーブルのID= " + postdata.Target +" を削除する ");
-                    SQLjson("./sub/Sdata.json",res,postdata.type,postdata.zougen.Max,postdata.idou.Max,"default");
+                    SQLjson("./sub/Sdata.json",res,postdata);
                 },
                 err =>{
                     console.log(err);
@@ -612,23 +608,25 @@ function forHTML(data){
 }
 
 
-function SQLjson(path,res,code,zou,ido,vec){
+function SQLjson(path,res,obj){
     //console.log("ここまで");
-
-    console.log(code,zou,ido,vec);
+    let zougenDataNum = 10;
+    let idouDataNum = 5;
+    console.log(obj.zougen);
+    console.log(obj.idou);
     res.writeHead(200,{"Content-Type": "application/json"});
     let Jstatus;
-    if(code === "default"){
+    if(obj.status === "default"){
         Jstatus = "default";
     }else{
         Jstatus = "next";
     }
 
-    var Json =  {
+    let Json =  {
         "status" : Jstatus
     }
     connection.query('SELECT name,kane FROM zaisan;', function (err, results) {
-        var Jdata = new Object();
+        let Jdata = new Object();
         Jdata.zaisan = [];
         for(let lop=0; lop < results.length ;lop++){
             Jdata.zaisan[lop] = {
@@ -641,39 +639,57 @@ function SQLjson(path,res,code,zou,ido,vec){
 
     let ZougenQuery = "";
     let IdouQuery = "";
-    if(code === "zougen"){
-        if(vec === "down" && zou - 10 > 0){
-            zou = parseInt(zou) - 10;
-        }else if(vec === "up"){
-            //プラス方向はどうせWHEREだから大丈夫
-            zou = parseInt(zou) + 10;
+    
+    /* 現在はうまく遷移しないが、これからどうしようか
+        IDが抜け抜けになっているためボタンを押してもうまくいかない
+        今までは+データ数-データ数みたいなことしていたから、連番ならうまくいった
+        今は単純な比較にしたが、一度下がった後再度上がると、ぎりぎりまであがってしまう、
+        id > max　とやってもdescなのでなんの制約も受けず最大値を受け取ってしまうのである。
+        だから初めにデータ個数の最大値と最小値を取っておこうかとも思うが、更新をどうしようか
+    */
+
+    if(obj.status === "default"){
+        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+    }else if(obj.status === "ajax"){
+        obj.zougen.Max = parseInt(obj.zougen.Max);
+        obj.zougen.Min = parseInt(obj.zougen.Min);
+        obj.idou.Max = parseInt(obj.idou.Max);
+        obj.idou.Min = parseInt(obj.idou.Min);
+
+        if(obj.type === "zougen"){
+
+            IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ obj.idou.Max +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+            if(obj.vec === "up"){
+                ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id > '+ obj.zougen.Max +'  ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
+            }else if(obj.vec === "down"){
+                ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id < '+ obj.zougen.Min +'  ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
+            }
+        
+        }else if(obj.type === "idou"){
+
+            ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ obj.zougen.Max +'  ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
+            if(obj.vec === "up"){
+                IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id > '+ obj.idou.Max +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+            }else if(obj.vec === "down"){
+                IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id < '+ obj.idou.Min +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+            }
         }else{
-            zou = parseInt(zou);
+            console.log("謎のタイプエラー by SQLjson");
+            res.end();
+            return;
         }
-    }else if(code === "idou"){
-        if(vec === "down" && ido - 5 > 0){
-            ido = parseInt(ido) - 5;
-        }else if(vec === "up"){
-            //プラス方向はどうせWHEREだから大丈夫
-            ido = parseInt(ido) + 5;
-        }else{
-            ido = parseInt(ido);
-        }
+    }else{
+        console.log("謎のステータスエラー by SQLjson");
+        res.end();
+        return;
     }
     
-    if(code === "default"){
-        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;';
-        IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT 5;';
-    }else{
-        
-        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ zou +'  ORDER BY id DESC LIMIT 10';
-        IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ ido +'  ORDER BY id DESC LIMIT 5';
-    }
 
     connection.query(ZougenQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
-        var Jdata = new Object();
+        let Jdata = new Object();
         //もしテーブルが空なら
         if(results.length === 0){
             Jdata.zougen = "今月のデータはありません";
@@ -699,7 +715,7 @@ function SQLjson(path,res,code,zou,ido,vec){
     connection.query(IdouQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
-        var Jdata = new Object();
+        let Jdata = new Object();
         //もしテーブルが空なら
         if(results.length === 0){
             Jdata.idou = "今月のデータはありません";

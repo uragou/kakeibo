@@ -14,7 +14,6 @@ let RadioBtn = document.getElementsByClassName("Rbtn");
 let SwBtn = Array(RadioBtn.length);
 
 
-
 //日付関連の各ラジオボタンにイベントを設定している。
 for(let lop = 0; lop < RadioBtn.length ; lop++){
     SwBtn[lop] = document.getElementById("Radio"+lop);
@@ -27,23 +26,30 @@ for(let lop = 0; lop < RadioBtn.length ; lop++){
 function RadioEvent(ev){
     let DayForm = document.getElementById("InputDay");
     if(this.value == "other"){
+
         SwBtn[0].checked = false;
         DayForm.setAttribute("value",kyou(-1));
         DayForm.setAttribute("max",kyou(-1));
         DayForm.setAttribute("min","1900-01-01");
         DayForm.disabled = false;
         console.log(DayForm);
+
     }else if(this.value == "today"){
+
         SwBtn[1].checked = false;
         DayForm.disabled = true;
+
     }else{
+
         DayForm.disabled = true;
+
     }
 };
 
 /*  名前通り本日の日付を返す 形式は yyyy-mm-dd 
   引数は今日からの差　（明日なら１　おとといなら-2）*/
 function kyou(sa){
+
     let date = new Date();
     date.setDate(date.getDate()+sa);
     let hdate;
@@ -64,6 +70,7 @@ SorS関数をイベントとして登録する
 */
 begin.onloadend = function(){
     if(begin.readyState === 4 && begin.status === 200){
+
         Bdata = JSON.parse(begin.response);
         console.log(Bdata);
         //ここに結果が来ている
@@ -77,11 +84,14 @@ begin.onloadend = function(){
   async.jsが最初のajaxを終わらせると実行される
 */
 function BeginFunc(){
+
     begin.open('POST','/sub/index.json' , true);
     let obj = new Object();
+
     obj.status = "begin";
     obj = JSON.stringify(obj);
     begin.send(obj);
+
 };
 
 /*
@@ -111,11 +121,15 @@ function SorS(event){
     if(this.value == "支出"){
         //分類を「支出」にした時の「種類」のプルダウンメニューを作っている
         var opts = new Array(Bdata.Bsisyutu.length);
+
         for(let lop = 0; lop< Bdata.Bsisyutu.length ; lop++){
+
             opts[lop] = document.createElement("option");
             opts[lop].setAttribute("value",Bdata.Bsisyutu[lop]);
             opts[lop].textContent=Bdata.Bsisyutu[lop];
+
             fragment.appendChild(opts[lop]);
+
         }
         Fromto(this.value);
         SubSwOn();
@@ -124,40 +138,59 @@ function SorS(event){
         //Bidouは財産の種類でもある
         //分類を「移動」にした時の「→」部分のプルダウンメニューを作っている
         var opts = new Array(Bdata.Bidou.length);
+
         for(let lop = 0; lop< Bdata.Bidou.length ; lop++){
+
             opts[lop] = document.createElement("option");
             opts[lop].setAttribute("value",Bdata.Bidou[lop]);
             opts[lop].textContent=Bdata.Bidou[lop];
+
             fragment.appendChild(opts[lop]);
+
         }
+
         Fromto(this.value);
         SubSwOn();
+
     }else if(this.value == "収入"){
+
         //分類を「収入」にした時の「種類」のプルダウンメニューを作っている
         var opts = new Array(Bdata.Bsyunyu.length);
+
         for(let lop = 0; lop< Bdata.Bsyunyu.length ; lop++){
+
             opts[lop] = document.createElement("option");
             opts[lop].setAttribute("value",Bdata.Bsyunyu[lop]);
             opts[lop].textContent=Bdata.Bsyunyu[lop];
+
             fragment.appendChild(opts[lop]);
+
         }
+
         Fromto(this.value);
         SubSwOn();
+
     }else{
+
         //初期状態の時は送信ボタンを押せないようにする
         //<input id="okuru" type="submit" value="送  信">
         let Okuru = document.getElementById("okuru");
+
         Okuru.disabled = true;
         Okuru.setAttribute("value","　　　");
         Okuru.setAttribute("class","SendNo");
+
     }
+
     naiyoujs.appendChild(fragment);
 
 }
 
 //送信ボタンをONにする
 function SubSwOn(){
+
     let Okuru = document.getElementById("okuru");
+
     Okuru.disabled = false;
     Okuru.setAttribute("value","送　信");
     Okuru.setAttribute("class","SendOk");
@@ -175,6 +208,7 @@ function Fromto(sentaku){
     let idoujs = document.getElementById("idou");
     let basyojs = document.getElementById("basyo");
     let fragment = document.createDocumentFragment();
+
     basyojs.innerHTML="";
     idoujs.innerHTML="";
 
@@ -203,20 +237,26 @@ function Fromto(sentaku){
     「→」か「出所」部分のプルダウンメニューを作成している
     */
     var opts = new Array(Bdata.Bidou.length);
+
     for(let lop = 0; lop< Bdata.Bidou.length ; lop++){
+
         opts[lop] = document.createElement("option");
         opts[lop].setAttribute("value",Bdata.Bidou[lop]);
         opts[lop].textContent=Bdata.Bidou[lop];
         fragment.appendChild(opts[lop]);
+
     }
     
     Select.appendChild(fragment);
 
     //selectタグが完成したらappendChildしている
     if(sentaku == "移動"){
+
         idoujs.appendChild(Select);
+
     }else{
+
         basyojs.appendChild(Select);
+
     }
 }
-
