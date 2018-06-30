@@ -45,20 +45,57 @@ init();
   簡単なSQL文を送って、エラーが帰ってきたら各関数に移動してテーブルを作る
   時間があったら、ちゃんとエラー文の内容を見て動作させたい*/
 function init(){
-    connection.query('SELECT * FROM zaisan', function (err, results) {
-        if(err){
-            //根本となるzaisanテーブルとzaihistoryテーブルの作成（通常は一度飲み）
-            Inittable();
+    init1().then(
+        suc =>{
+            //console.log(suc);
+            return init2();
+        },
+        err =>{
+            console.log(err);
+            return init2();
         }
-    });
-    connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT 10;', function (err, results) {
-        if(err){
-            //zaisanテーブル以外の作成（月に一度、起動時に作成）
-            CreateTable();
-            UpdateTables();
+    ).then(
+        suc =>{
+            //console.log(suc);
         }
+    );
+    /*connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC;', function (err, results) {
+        if(!err){
+            console.log(results);
+        }
+    });*/
+    
+}
+function init1(){
+    return  new Promise( (resolve,reject) =>{
+        connection.query('SELECT * FROM zaisan;', function (err, results) {
+            if(err){
+                //根本となるzaisanテーブルとzaihistoryテーブルの作成（通常は一度飲み）
+                Inittable();
+                reject("財産データがないので作成");
+            }else{
+                resolve("財産データあり");
+            }
+        });
     });
 }
+function init2(){
+    return  new Promise( (resolve,reject) =>{
+        connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC;', function (err, results) {
+            if(err){
+                //zaisanテーブル以外の作成（月に一度、起動時に作成）
+                CreateTable();
+                UpdateTables();
+                reject("今月のデータがないので作成");
+            }else{
+                console.log(results);
+                resolve("今月のデータあり");
+            }
+        });
+    });
+}
+
+
 
 /*  zaisanテーブルを作成し、各項目を残高0の状態で作成する
   データが少ないので各名称を配列に入れているが、いずれはなんとかしたい。*/
