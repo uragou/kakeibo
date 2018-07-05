@@ -55,9 +55,14 @@ function kyou(sa){
     let hdate;
 
     if(date.getMonth()+1 < 10){
-        hdate = date.getFullYear() + "-0" + (date.getMonth()+1) + "-" + date.getDate();
+        hdate = date.getFullYear() + "-0" + (date.getMonth()+1);
     }else{
-        hdate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+        hdate = date.getFullYear() + "-" + (date.getMonth()+1);
+    }
+    if(date.getDate()<10){
+        hdate = hdate + "-0" + date.getDate();
+    }else{
+        hdate = hdate + "-" + date.getDate();
     }
     return hdate;
 }
