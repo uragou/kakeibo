@@ -25,7 +25,7 @@ if(date.getMonth()+1 < 10){
 }
 //接続
 server.on("request",getdata);
-         
+        
 //mysqlからのデータ取得する。dbConfigはデータベースにアクセスするためのオブジェクト
 var mysql = require('mysql');
 let dbConfig = {
@@ -51,7 +51,7 @@ function init(){
             return init2();
         },
         err =>{
-            console.log(err);
+            //console.log(err);
             return init2();
         }
     ).then(
@@ -59,12 +59,6 @@ function init(){
             //console.log(suc);
         }
     );
-    /*connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC;', function (err, results) {
-        if(!err){
-            console.log(results);
-        }
-    });*/
-    
 }
 function init1(){
     return  new Promise( (resolve,reject) =>{
@@ -81,14 +75,13 @@ function init1(){
 }
 function init2(){
     return  new Promise( (resolve,reject) =>{
-        connection.query('SELECT * FROM zougen'+ hdate +' ORDER BY id DESC;', function (err, results) {
+        connection.query('SELECT id FROM zougen'+ hdate +' ORDER BY id DESC;', function (err, results) {
             if(err){
                 //zaisanテーブル以外の作成（月に一度、起動時に作成）
                 CreateTable();
                 UpdateTables();
                 reject("今月のデータがないので作成");
             }else{
-                console.log(results);
                 resolve("今月のデータあり");
             }
         });
@@ -301,6 +294,7 @@ function BSfile(path,res){
     });
     req.on("end",function(){
         console.log(postdata);
+        //console.log(req);
         //送られてきたデータの先頭によって、何の要求かを判断する
 
 
@@ -649,8 +643,7 @@ function SQLjson(path,res,obj){
     //console.log("ここまで");
     let zougenDataNum = 10;
     let idouDataNum = 5;
-    console.log(obj.zougen);
-    console.log(obj.idou);
+    console.log(obj);
     res.writeHead(200,{"Content-Type": "application/json"});
     let Jstatus;
     if(obj.status === "default"){
@@ -684,7 +677,6 @@ function SQLjson(path,res,obj){
         id > max　とやってもdescなのでなんの制約も受けず最大値を受け取ってしまうのである。
         だから初めにデータ個数の最大値と最小値を取っておこうかとも思うが、更新をどうしようか
     */
-
     if(obj.status === "default"){
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
         IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT ' + idouDataNum + ';';
@@ -693,12 +685,11 @@ function SQLjson(path,res,obj){
         obj.zougen.Min = parseInt(obj.zougen.Min);
         obj.idou.Max = parseInt(obj.idou.Max);
         obj.idou.Min = parseInt(obj.idou.Min);
-
         if(obj.type === "zougen"){
 
             IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ obj.idou.Max +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
             if(obj.vec === "up"){
-                ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id > '+ obj.zougen.Max +'  ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
+                ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id > '+ obj.zougen.Max +'  ORDER BY id ASC LIMIT ' + zougenDataNum + ';';
             }else if(obj.vec === "down"){
                 ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id < '+ obj.zougen.Min +'  ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
             }
@@ -716,6 +707,13 @@ function SQLjson(path,res,obj){
             res.end();
             return;
         }
+    }else if(obj.status === "delete"){
+        obj.zougen.Max = parseInt(obj.zougen.Max);
+        obj.zougen.Min = parseInt(obj.zougen.Min);
+        obj.idou.Max = parseInt(obj.idou.Max);
+        obj.idou.Min = parseInt(obj.idou.Min);
+        ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
+        IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT ' + idouDataNum + ';';
     }else{
         console.log("謎のステータスエラー by SQLjson");
         res.end();
@@ -731,6 +729,12 @@ function SQLjson(path,res,obj){
         if(results.length === 0){
             Jdata.zougen = "今月のデータはありません";
         }else{
+            console.log(results[0]);
+            if(obj.vec == "up"){
+                results.reverse();
+            }
+            console.log(results[0]);
+
             Jdata.zougen=[];
             NowMaxzougen = results[0].id;
             for(let lop=0; lop < results.length ;lop++){
@@ -757,6 +761,10 @@ function SQLjson(path,res,obj){
         if(results.length === 0){
             Jdata.idou = "今月のデータはありません";
         }else{
+            if(obj.vec == "up"){
+                results.reverse();
+            }
+
             Jdata.idou = [];
             NowMaxidou = results[0].id;
             for(let lop=0; lop < results.length ;lop++){
