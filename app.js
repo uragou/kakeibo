@@ -698,7 +698,7 @@ function SQLjson(path,res,obj){
 
             ZougenQuery = 'SELECT * FROM zougen'+ hdate +' WHERE id <= '+ obj.zougen.Max +'  ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
             if(obj.vec === "up"){
-                IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id > '+ obj.idou.Max +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+                IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id > '+ obj.idou.Max +'  ORDER BY id ASC LIMIT ' + idouDataNum + ';';
             }else if(obj.vec === "down"){
                 IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id < '+ obj.idou.Min +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
             }
