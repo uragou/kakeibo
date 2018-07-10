@@ -1,8 +1,8 @@
 //httpリクエストを受け付ける
-var http = require('http');
-var fs   = require('fs');
+let http = require('http');
+let fs   = require('fs');
 //ポート番号は55555
-var port = 55555;
+let port = 55555;
 let server = http.createServer();
 //待ち受ける
 server.listen(port, function(){
@@ -13,6 +13,10 @@ server.listen(port, function(){
 let date = new Date();
 let hdate = "";
 let Today = "";
+
+//現在のデータを格納しておく
+let Nzougen = new Array();
+let Nidou = new Array();
 
 //new Dateは0～11で月を返すので01~12に修正している。
 //hdateはテーブルを作成するための年と月で、Todayは送信データを調べるための年、月、日
@@ -724,16 +728,21 @@ function SQLjson(path,res,obj){
     connection.query(ZougenQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
+        if(results.length != 0){
+            Nzougen = results;
+        }
+
         let Jdata = new Object();
         //もしテーブルが空なら
-        if(results.length === 0){
+        if(results.length === 0 && Nzougen.length === 0){
             Jdata.zougen = "今月のデータはありません";
         }else{
-            console.log(results[0]);
-            if(obj.vec == "up"){
+            if(obj.type === "zougen" && obj.vec == "up"){
                 results.reverse();
             }
-            console.log(results[0]);
+            if(results.length === 0){
+                results = Nzougen;
+            }
 
             Jdata.zougen=[];
             NowMaxzougen = results[0].id;
@@ -756,13 +765,20 @@ function SQLjson(path,res,obj){
     connection.query(IdouQuery, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
+        if(results.length != 0){
+            results = Nidou;
+        }
+
         let Jdata = new Object();
         //もしテーブルが空なら
-        if(results.length === 0){
+        if(results.length === 0 && Nidou.length === 0){
             Jdata.idou = "今月のデータはありません";
         }else{
-            if(obj.vec == "up"){
+            if(obj.type === "idou" && obj.vec == "up"){
                 results.reverse();
+            }
+            if(results.length === 0){
+                results = Nidou;
             }
 
             Jdata.idou = [];
