@@ -346,7 +346,27 @@ function BSfile(path,res){
             
             if( bunkatu[0] == "移動"){
                 if(bunkatu[2] != bunkatu[3]){
-                    //promiseじゃない気がする。書き直し
+
+                    zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
+                        resolve =>{
+                            console.log(resolve);
+                            return zaisanAdd("in",bunkatu[3],bunkatu[1]);
+                        },
+                        reject =>{
+                            console.log(reject);
+                            console.log("reject");
+                            return ErrFunc();
+                        }
+                    ).then(
+                        resolve =>{
+                            console.log(resolve);
+                            idouadd(bunkatu);
+                        },
+                        reject => {
+                            console.log(reject);
+                        }
+                    );
+                    /*
                     zaisanAdd("out",bunkatu[2],bunkatu[1]).then(
                         resolve =>{
                             console.log(resolve);
@@ -365,7 +385,7 @@ function BSfile(path,res){
                             console.log(reject);
                         }
 
-                    )
+                    )*/
                 }else{
                     console.log("同じじゃん");
                 }
