@@ -24,6 +24,7 @@ BeginFunc関数はindex.jsにある。本当はbody部分に二つ関数を書�
 asnc.jsで実行するとここでjsonを受け取ることになり、別のjsファイルにうまく引き継げなかったため、関数ごとindex.jsに移動した。
 */
 ajax.onloadend = function(){
+
     if(ajax.readyState === 4 && ajax.status === 200){
         //console.log(ajax.response);
         JsonData = JSON.parse(ajax.response);
@@ -34,6 +35,7 @@ ajax.onloadend = function(){
             if(JsonData.status === "default"){
                 BeginFunc();
             }
+
         }else if(JsonData.status === "error"){
             window.alert("削除に失敗しました。処理に矛盾があります。");
         }
@@ -50,6 +52,7 @@ function init(){
     //非同期　false じゃないと連続で受け取れない
     ajax.open('POST','/sub/Sdata.json' , true);
     let obj = new Object();
+
     obj.status = "default";
     obj = JSON.stringify(obj);
     ajax.send(obj);
@@ -67,6 +70,7 @@ zougenデータはそのままにidouデータは最初に表示されている�
 */
 rightidou.addEventListener("click",function(ev){
     let obj = new Object();
+
     obj = JsonCreate(obj,"ajax",IDOU,DOWN);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send(obj);
@@ -74,6 +78,7 @@ rightidou.addEventListener("click",function(ev){
 
 leftidou.addEventListener("click",function(ev){
     let obj = new Object();
+
     obj = JsonCreate(obj,"ajax",IDOU,UP);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send(obj);
@@ -81,6 +86,7 @@ leftidou.addEventListener("click",function(ev){
 
 rightzougen.addEventListener("click",function(ev){
     let obj = new Object();
+
     obj = JsonCreate(obj,"ajax",ZOUGEN,DOWN);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send(obj);
@@ -89,6 +95,7 @@ rightzougen.addEventListener("click",function(ev){
 
 leftzougen.addEventListener("click",function(ev){
     let obj = new Object();
+
     obj = JsonCreate(obj,"ajax",ZOUGEN,UP);
     ajax.open('POST','/sub/Sdata.json' , true);
     ajax.send(obj);
@@ -97,15 +104,19 @@ leftzougen.addEventListener("click",function(ev){
 function JsonCreate(obj,status,type,op){
     obj.status = status;
     obj.type = type;
+
     obj.zougen = {
         "Max" : zougenMax,
         "Min" : zougenMin
     };
+
     obj.idou = {
         "Max" : idouMax,
         "Min" : idouMin
     };
+
     switch(status){
+
         case "ajax":
             obj.vec = op;
             break;
@@ -115,6 +126,7 @@ function JsonCreate(obj,status,type,op){
         default:
             break;
     }
+
     obj = JSON.stringify(obj);
     return obj;
 }
@@ -126,20 +138,30 @@ function JsonCreate(obj,status,type,op){
 function DelFunc(Table,Tid){
     let Dtarget;
     let obj = new Object();
+
     if(Table === "Z"){
+
         obj = JsonCreate(obj,"delete",ZOUGEN,Tid);
+
         console.log(Tid);
         Dtarget = "delete,zougen," + zougenMax + "," + idouMax+ "," + Tid;
+
     }else if(Table === "I"){
+
         obj = JsonCreate(obj,"delete",IDOU,Tid);
+
         console.log(Tid);
         Dtarget = "delete,idou," + zougenMax + "," + idouMax+ "," + Tid;
     }else{
+
         window.alert("ブラウザ内でのエラー");
         return;
     }
+
     let Win = confirm("本当に削除しますか？");
+
     if(Win == true){
+
         ajax.open('POST','/sub/Sdata.json' , true);
         ajax.send(obj);
     }
@@ -184,7 +206,9 @@ function SQLfunc(JsonData){
         celth.textContent = zaicel[lop];
         nowfrag.appendChild(nowhead).appendChild(nowtr).appendChild(celth);
     }
+
     nowdatajs.appendChild(nowfrag);
+
     for(let lop=0;lop<JsonData.zaisan.length;lop++){
 
         let fragment = document.createDocumentFragment();
@@ -207,6 +231,7 @@ function SQLfunc(JsonData){
         let Nzougen = document.createElement("h1");
         Nzougen.textContent = JsonData.zougen;
         zougendatajs.appendChild(Nzougen);
+
     }else{
 
         for(let lop=0;lop<zoucel.length;lop++){
@@ -215,6 +240,7 @@ function SQLfunc(JsonData){
             celth.setAttribute("class",zouop[lop]);
             zoufrag.appendChild(zouhead).appendChild(zoutr).appendChild(celth);
         }
+
         zougendatajs.appendChild(zoufrag);
 
         zougenMax = JsonData.zougen[0].id;
@@ -240,6 +266,7 @@ function SQLfunc(JsonData){
             //この書き方により、各データをダブルクリックしたときのイベントを登録できる
 
             kanetd.setAttribute("class","kane");
+
             bunruitd.textContent = JsonData.zougen[lop].bunrui;
             basyotd.textContent = JsonData.zougen[lop].basyo;
             JsonData.zougen[lop].kane = changekane(JsonData.zougen[lop].kane);
@@ -247,6 +274,7 @@ function SQLfunc(JsonData){
             syuruitd.textContent = JsonData.zougen[lop].syurui;
             komentotd.innerHTML = JsonData.zougen[lop].komento;
             timetd.textContent = JsonData.zougen[lop].time;
+
             fragment.appendChild(tr).appendChild(bunruitd);
             fragment.appendChild(tr).appendChild(basyotd);
             fragment.appendChild(tr).appendChild(kanetd);
@@ -259,16 +287,21 @@ function SQLfunc(JsonData){
 
     //idouデータをテーブルに格納する。データがない時はないと表示する。
     if(JsonData.idou === "今月のデータはありません"){
+
         let Nidou = document.createElement("h1");
         Nidou.textContent = JsonData.idou;
         idoudatajs.appendChild(Nidou);
+
     }else{
+        
         for(let lop=0;lop<idoucel.length;lop++){
+
             let celth = document.createElement("th");
             celth.textContent = idoucel[lop];
             celth.setAttribute("class",idouop[lop]);
             idoufrag.appendChild(idouhead).appendChild(idoutr).appendChild(celth);
         }
+
         idoudatajs.appendChild(idoufrag);
         idouMax = JsonData.idou[0].id;
         idouMin = JsonData.idou[JsonData.idou.length-1].id;
@@ -294,6 +327,7 @@ function SQLfunc(JsonData){
             atotd.textContent = JsonData.idou[lop].ato;
             komentotd.innerHTML = JsonData.idou[lop].komento;
             timetd.textContent = JsonData.idou[lop].time;
+
             fragment.appendChild(tr).appendChild(maetd);
             fragment.appendChild(tr).appendChild(atotd);
             fragment.appendChild(tr).appendChild(kanetd);
@@ -306,6 +340,7 @@ function SQLfunc(JsonData){
 
 //送られてくる金額データはただの整数であるため、3桁ずつに区切って見やすくする
 function changekane(num){
+    
     var anum = "";
     let lop = 3;
     anum = num + "";

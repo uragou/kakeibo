@@ -13,7 +13,6 @@ let okurujs = document.getElementById('okuru');
 let RadioBtn = document.getElementsByClassName("Rbtn");
 let SwBtn = Array(RadioBtn.length);
 
-
 //日付関連の各ラジオボタンにイベントを設定している。
 for(let lop = 0; lop < RadioBtn.length ; lop++){
     SwBtn[lop] = document.getElementById("Radio"+lop);
@@ -22,7 +21,9 @@ for(let lop = 0; lop < RadioBtn.length ; lop++){
 
 
 /*  ラジオボタンにより、今日以外の家計簿をつけたい場合は入力必須の日付フォームを操作可能とする
-  また「今日」のボタンを押すとdisabledがtrueになり、入力必須でなくなる*/
+  また「今日」のボタンを押すとdisabledがtrueになり、入力必須でなくなる
+  入力できるのは90日前までにしている
+*/
 function RadioEvent(ev){
     let DayForm = document.getElementById("InputDay");
     if(this.value == "other"){
@@ -30,7 +31,7 @@ function RadioEvent(ev){
         SwBtn[0].checked = false;
         DayForm.setAttribute("value",kyou(-1));
         DayForm.setAttribute("max",kyou(-1));
-        DayForm.setAttribute("min","1900-01-01");
+        DayForm.setAttribute("min",kyou(-90));
         DayForm.disabled = false;
         console.log(DayForm);
 
@@ -40,7 +41,7 @@ function RadioEvent(ev){
         DayForm.disabled = true;
 
     }else{
-
+        console.log("ラジオボタンに謎の値 by RadioEvent");
         DayForm.disabled = true;
 
     }
@@ -49,7 +50,6 @@ function RadioEvent(ev){
 /*  名前通り本日の日付を返す 形式は yyyy-mm-dd 
   引数は今日からの差　（明日なら１　おとといなら-2）*/
 function kyou(sa){
-
     let date = new Date();
     date.setDate(date.getDate()+sa);
     let hdate;
@@ -140,15 +140,15 @@ function SorS(event){
         SubSwOn();
 
     }else if(this.value == "移動"){
-        //Bidouは財産の種類でもある
+        //Bzaisanは財産の種類でもある
         //分類を「移動」にした時の「→」部分のプルダウンメニューを作っている
-        var opts = new Array(Bdata.Bidou.length);
+        var opts = new Array(Bdata.Bzaisan.length);
 
-        for(let lop = 0; lop< Bdata.Bidou.length ; lop++){
+        for(let lop = 0; lop< Bdata.Bzaisan.length ; lop++){
 
             opts[lop] = document.createElement("option");
-            opts[lop].setAttribute("value",Bdata.Bidou[lop]);
-            opts[lop].textContent=Bdata.Bidou[lop];
+            opts[lop].setAttribute("value",Bdata.Bzaisan[lop]);
+            opts[lop].textContent=Bdata.Bzaisan[lop];
 
             fragment.appendChild(opts[lop]);
 
@@ -241,13 +241,13 @@ function Fromto(sentaku){
       this.valueがなんであろうと実は入れる値は同じためこの部分だけ分離している
     「→」か「出所」部分のプルダウンメニューを作成している
     */
-    var opts = new Array(Bdata.Bidou.length);
+    var opts = new Array(Bdata.Bzaisan.length);
 
-    for(let lop = 0; lop< Bdata.Bidou.length ; lop++){
+    for(let lop = 0; lop< Bdata.Bzaisan.length ; lop++){
 
         opts[lop] = document.createElement("option");
-        opts[lop].setAttribute("value",Bdata.Bidou[lop]);
-        opts[lop].textContent=Bdata.Bidou[lop];
+        opts[lop].setAttribute("value",Bdata.Bzaisan[lop]);
+        opts[lop].textContent=Bdata.Bzaisan[lop];
         fragment.appendChild(opts[lop]);
 
     }

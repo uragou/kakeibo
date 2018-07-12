@@ -1,9 +1,13 @@
 //httpリクエストを受け付ける
+
 let http = require('http');
 let fs   = require('fs');
+let index = require('./sub/index.json');
+
 //ポート番号は55555
 let port = 55555;
 let server = http.createServer();
+
 //待ち受ける
 server.listen(port, function(){
     console.log('listening on *:'+port);
@@ -21,11 +25,15 @@ let Nidou = new Array();
 //new Dateは0～11で月を返すので01~12に修正している。
 //hdateはテーブルを作成するための年と月で、Todayは送信データを調べるための年、月、日
 if(date.getMonth()+1 < 10){
+
     hdate = date.getFullYear()+'0'+ (date.getMonth()+1) ;
     Today =  date.getFullYear()+'0'+ (date.getMonth()+1) + (date.getDate());
+
 }else{
+
    hdate = date.getFullYear()+''+ (date.getMonth()+1) ;
    Today =  date.getFullYear() + (date.getMonth()+1) + (date.getDate());
+
 }
 //接続
 server.on("request",getdata);
@@ -38,8 +46,10 @@ let dbConfig = {
     user: 'kakeibo',
     password: 'kakeibokey'
 };
+
 let connection = mysql.createConnection(dbConfig);
 connection.connect();
+
 //始めに一度だけinit関数を呼ぶ
 init();
 //--------------------------------------------------------------------たまに動く関数たち---------------------------------------------------------------
@@ -64,6 +74,7 @@ function init(){
         }
     );
 }
+
 function init1(){
     return  new Promise( (resolve,reject) =>{
         connection.query('SELECT * FROM zaisan;', function (err, results) {
@@ -77,6 +88,7 @@ function init1(){
         });
     });
 }
+
 function init2(){
     return  new Promise( (resolve,reject) =>{
         connection.query('SELECT id FROM zougen'+ hdate +' ORDER BY id DESC;', function (err, results) {
@@ -94,15 +106,12 @@ function init2(){
 
 
 
-/*  zaisanテーブルを作成し、各項目を残高0の状態で作成する
-  データが少ないので各名称を配列に入れているが、いずれはなんとかしたい。*/
+/*  zaisanテーブルを作成し、各項目を残高0の状態で作成する*/
 function Inittable(){
-    let zailis = ["パスモ","銀行","自宅金","財布"];
-    //jsonから持ってくるようにする！
     InittableFunc1().then(
         suc => {
             console.log(suc);
-            return InittableFunc2(zailis[0]);
+            return InittableFunc2(index.Bzaisan[0]);
         },
         err => {
             console.log(err);
@@ -110,7 +119,7 @@ function Inittable(){
     ).then(
         suc => {
             console.log(suc);
-            return InittableFunc2(zailis[1]);
+            return InittableFunc2(index.Bzaisan[1]);
         },
         err => {
             console.log(err);
@@ -118,7 +127,7 @@ function Inittable(){
     ).then(
         suc => {
             console.log(suc);
-            return InittableFunc2(zailis[2]);
+            return InittableFunc2(index.Bzaisan[2]);
         },
         err => {
             console.log(err);
@@ -126,7 +135,7 @@ function Inittable(){
     ).then(
         suc => {
             console.log(suc);
-            return InittableFunc2(zailis[3]);
+            return InittableFunc2(index.Bzaisan[3]);
         },
         err => {
             console.log(err);
@@ -141,6 +150,7 @@ function Inittable(){
         }
     )
 }
+
 function InittableFunc1(){
     return new Promise( (resolve,reject) =>{
         connection.query("CREATE TABLE kakeibo_db.zaisan (name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
@@ -152,6 +162,7 @@ function InittableFunc1(){
         });
     });
 }
+
 function InittableFunc2(){
     return new Promise( (resolve,reject) =>{
         connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ data +"\",0);", function(err,results){
@@ -163,6 +174,7 @@ function InittableFunc2(){
         });
     });
 }
+
 function InittableFunc3(){
     return new Promise( (resolve,reject) =>{
         connection.query("CREATE TABLE kakeibo_db.zaihistory (id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(20) NOT NULL PRIMARY KEY,kane INT NOT NULL);", function(err,results){
@@ -221,29 +233,42 @@ function getdata(req,res){
     if(req.method == "GET"){
 
         if(req.url == "/"){
+
             res.writeHead(200,{"Content-Type": "text/html"});
             Sfile("./index.html",res);
+
         }else if(req.url == "/sub/index.js"){
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/index.js",res);
+
         }else if(req.url == "/sub/async.js"){
+
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/async.js",res);
+
         }else if(req.url == "/sub/index.css"){
+
             res.writeHead(200,{"Content-Type": "text/css"});
             Sfile("./sub/index.css",res);
+
         }else if(req.url == "/sub/back.png"){
+
             res.writeHead(200,{"Content-Type": "image/png"});
             BSfile("./sub/back.png",res);
+
         }else if(req.url == "/sub/aikon.ico"){
+
             res.writeHead(200,{"Content-Type": "image/x-icon"});
             BSfile("./sub/aikon.ico",res);
+
         }else{
+
             res.writeHead(200,{"Content-Type": "image/png"});
             BSfile("./sub/sonota.png",res);
         }
         
     }else if(req.method == "POST"){
+
         //上の統合しようよ
         switch(req.url){
             case "/sub/Sdata.json":
@@ -276,6 +301,7 @@ function Sfile(path,res){
         res.end(data);
     });
 }
+
 function BSfile(path,res){
     fs.readFile(path,function(err ,data){
         if(err){
@@ -317,6 +343,7 @@ function BSfile(path,res){
         }
         // bunkatu[0]は分類
         if( !(Henkan(bunkatu[5]) == "error") ){
+            
             if( bunkatu[0] == "移動"){
                 if(bunkatu[2] != bunkatu[3]){
                     //promiseじゃない気がする。書き直し
@@ -342,6 +369,7 @@ function BSfile(path,res){
                 }else{
                     console.log("同じじゃん");
                 }
+
             }else if(bunkatu[0] == "収入" || bunkatu[0] == "支出"){
                 var send = "";
                 if(bunkatu[0] == "収入"){
@@ -420,7 +448,9 @@ function Sakujo(postdata,res){
     //id は数値のみなので数値以外ならエラー起こす
     let ID = parseInt(postdata.Target);
     if( (postdata.type === "zougen" || postdata.type === "idou") && (ID > 0) ){
+
         if( postdata.type === "zougen"){
+
             SakujoZo1(ID).then(
                 suc =>{
                     return SakujoZo2(suc);
@@ -461,7 +491,9 @@ function Sakujo(postdata,res){
                     res.end(obj);
                 }
             );
+
         }else if( postdata.type === "idou"){
+
             let mobj = new Object();
             let aobj = new Object();
             SakujoId1(ID).then(
@@ -512,8 +544,8 @@ function Sakujo(postdata,res){
                 }
             ).then(
                 suc =>{
-                    console.log(splitdata[1] + " テーブルのID= " + postdata.Target +" を削除する ");
-                    SQLjson("./sub/Sdata.json",res,postdata.type,postdata.zougen.Max,postdata.idou.Max,"default");
+                    console.log(postdata.type + " テーブルのID= " + postdata.Target +" を削除する ");
+                    SQLjson("./sub/Sdata.json",res,postdata);
                 },
                 err =>{
                     console.log(err);
@@ -537,12 +569,15 @@ function ErrFunc(){
         reject(" ");
     });
 }
+
 //まずは該当データから金額など必要データを手に入れる
 //この時点での金額データは足し引きする金額
 function SakujoZo1(Id){
     return new Promise((resolve,reject) => {
+
         let insertData = "SELECT bunrui,basyo,kane FROM zougen" + hdate + " WHERE id = " + Id;
         connection.query(insertData, function (err, results) {
+
             if(err){
                 reject("クエリ1で失敗　by SakujoZo1");
             }else{
@@ -557,12 +592,16 @@ function SakujoZo1(Id){
         });
     });
 }
+
 //次にzaisanデータから金額を取り出す
 //この時点からの金額データは足し引き後の金額
+
 function SakujoZo2(obj){
     return new Promise((resolve,reject) => {
+
         let insertData  ="SELECT kane FROM zaisan WHERE name = '" + obj.basyo + "'";
         connection.query(insertData, function (err, results) {
+
             if(err){
                 reject("クエリ2で失敗　by SakujoZo2");
             }else{
@@ -576,10 +615,13 @@ function SakujoZo2(obj){
         });
     });
 }
+
 //zaisanテーブルから指定金額を再計算する
 function SakujoZo3(obj){
+
     return new Promise((resolve,reject) => {
         let insertData  ="UPDATE zaisan SET kane = " + obj.kane + " WHERE name = '" + obj.basyo + "'";
+
         connection.query(insertData, function (err, results) {
             if(err){
                 reject("クエリ3で失敗　by SakujoZo3");
@@ -593,6 +635,7 @@ function SakujoZo3(obj){
 //最後にzougenテーブルから削除する
 function SakujoZo4(ID,Tget){
     return new Promise((resolve,reject) => {
+
         let insertData = "DELETE FROM "+ Tget + hdate + " WHERE id = " + ID;
         connection.query(insertData, function (err, results) {
             if(err){
@@ -606,11 +649,13 @@ function SakujoZo4(ID,Tget){
 
 function SakujoId1(Id){
     return new Promise((resolve,reject) => {
+
         let insertData = "SELECT kane,mae,ato FROM idou" + hdate + " WHERE id = " + Id;
         connection.query(insertData, function (err, results) {
             if(err){
                 reject("クエリ1で失敗　by SakujoZo1");
             }else{
+
                 let obj = new Object();
                 obj.mae = results[0].mae;
                 obj.ato = results[0].ato;
@@ -674,21 +719,18 @@ function SQLjson(path,res,obj){
     let ZougenQuery = "";
     let IdouQuery = "";
     
-    /* 現在はうまく遷移しないが、これからどうしようか
-        IDが抜け抜けになっているためボタンを押してもうまくいかない
-        今までは+データ数-データ数みたいなことしていたから、連番ならうまくいった
-        今は単純な比較にしたが、一度下がった後再度上がると、ぎりぎりまであがってしまう、
-        id > max　とやってもdescなのでなんの制約も受けず最大値を受け取ってしまうのである。
-        だから初めにデータ個数の最大値と最小値を取っておこうかとも思うが、更新をどうしようか
-    */
     if(obj.status === "default"){
+
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
         IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+
     }else if(obj.status === "ajax"){
+
         obj.zougen.Max = parseInt(obj.zougen.Max);
         obj.zougen.Min = parseInt(obj.zougen.Min);
         obj.idou.Max = parseInt(obj.idou.Max);
         obj.idou.Min = parseInt(obj.idou.Min);
+
         if(obj.type === "zougen"){
 
             IdouQuery = 'SELECT * FROM idou'+ hdate +' WHERE id <= '+ obj.idou.Max +'  ORDER BY id DESC LIMIT ' + idouDataNum + ';';
@@ -712,14 +754,17 @@ function SQLjson(path,res,obj){
             return;
         }
     }else if(obj.status === "delete"){
+
         obj.zougen.Max = parseInt(obj.zougen.Max);
         obj.zougen.Min = parseInt(obj.zougen.Min);
         obj.idou.Max = parseInt(obj.idou.Max);
         obj.idou.Min = parseInt(obj.idou.Min);
         ZougenQuery = 'SELECT * FROM zougen'+ hdate +' ORDER BY id DESC LIMIT ' + zougenDataNum + ';';
         IdouQuery = 'SELECT * FROM idou'+ hdate +' ORDER BY id DESC LIMIT ' + idouDataNum + ';';
+
     }else{
         console.log("謎のステータスエラー by SQLjson");
+        console.log(obj.status);
         res.end();
         return;
     }
@@ -747,8 +792,10 @@ function SQLjson(path,res,obj){
             Jdata.zougen=[];
             NowMaxzougen = results[0].id;
             for(let lop=0; lop < results.length ;lop++){
+
                 let komentoHTML = forHTML(results[lop].komento);
                 let jikan = results[lop].time.getFullYear() + "年 " + (results[lop].time.getMonth()+1) + "月 " + results[lop].time.getDate() + "日";
+
                 Jdata.zougen[lop] = {
                     "id" : results[lop].id,
                     "bunrui" : results[lop].bunrui,
@@ -766,7 +813,7 @@ function SQLjson(path,res,obj){
         //console.log('--- results ---');
         //console.log(results);
         if(results.length != 0){
-            results = Nidou;
+            Nidou = results;
         }
 
         let Jdata = new Object();
@@ -796,6 +843,7 @@ function SQLjson(path,res,obj){
                 }
             }
         }
+
         Object.assign(Json,Jdata);
         Json = JSON.stringify(Json);
         //console.log(Json);
@@ -807,9 +855,11 @@ function SQLjson(path,res,obj){
 //zougenやidouの書き込みが失敗してもzaisanに書き込んでしまっているのを直したい。というかエラー処理をやりたい
 
 function zougenAdd(bunkatu){
+
     let insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
     console.log(Henkan(bunkatu[5]));
     console.log(parseInt(  Henkan(bunkatu[5])  ));
+
     if(bunkatu[5] === "today"){
         console.log("正常な今日");
     }else if(parseInt(Today) <= parseInt(  Henkan(bunkatu[5])  )){
@@ -821,6 +871,7 @@ function zougenAdd(bunkatu){
         console.log("日付関連のデータがおかしい");
         return;
     }
+
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
         //console.log(results);
@@ -842,6 +893,7 @@ function idouadd(bunkatu){
         console.log("日付関連のデータがおかしい");
         return;
     }
+        
     console.log(insertData);
     connection.query(insertData, function (err, results) {
         //console.log('--- results ---');
@@ -851,6 +903,7 @@ function idouadd(bunkatu){
 }
 
 function zaisanAdd(io,basyo,num){
+
     // bunkatu[1]は場所
     return new Promise((resolve,reject)=>{
         var insertData;
@@ -873,6 +926,7 @@ function zaisanAdd(io,basyo,num){
                 }
                 resolve("OK");
             }
+
             insertData = "UPDATE zaisan SET kane =" + bufnum + " WHERE name = \"" + results[0].name + "\";";
             connection.query(insertData, function (err, results) {
                 console.log('--- results ---');
