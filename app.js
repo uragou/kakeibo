@@ -231,16 +231,19 @@ function AddData(NewData){
   POSTの場合はpostshoriに移動する */
 function getdata(req,res){
     if(req.method == "GET"){
-
         if(req.url == "/"){
 
             res.writeHead(200,{"Content-Type": "text/html"});
             Sfile("./index.html",res);
 
+        }else if(req.url == "/tree/syosai.html"){
+            res.writeHead(200,{"Content-Type": "text/html"});
+            Sfile("./tree/syosai.html",res);
+
         }else if(req.url == "/sub/index.js"){
+
             res.writeHead(200,{"Content-Type": "text/javascript"});
             Sfile("./sub/index.js",res);
-
         }else if(req.url == "/sub/async.js"){
 
             res.writeHead(200,{"Content-Type": "text/javascript"});

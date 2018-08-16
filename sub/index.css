@@ -70,6 +70,44 @@ td{
     border-style: groove;
 }
 
+.en{
+    position: absolute;
+    width:20%;
+    height:100%;
+    line-height:40px;
+    font-weight: 800;
+    font-size: 30px;
+    text-align: center;
+    background-color:#58FAF4;
+    border-radius: 50%;
+    border-bottom: solid 5px #00BFFF;
+    border-right: solid 5px #00BFFF;
+    z-index: 122;
+}
+
+.tekari1{
+    position: absolute;
+    top: 12%;
+    right: 15%;
+    width:10%;
+    height:30%;
+    transform: rotate(-40deg);
+    border-radius: 50%;
+    background-color:white;
+    z-index: 333;
+}
+
+.tekari2{
+    position: absolute;
+    top: 40%;
+    right: 10%;
+    width:5%;
+    height:7%;
+    border-radius: 50%;
+    background-color:white;
+    z-index: 333;
+}
+
 .kane{
     text-align: right; 
 }
