@@ -175,8 +175,8 @@ function SQLfunc(JsonData){
 
     let zougendatajs = document.getElementById("zougendata");
     let idoudatajs = document.getElementById("idoudata");
-    let nowdatajs = document.getElementById("nowdata");
-    nowdatajs.innerHTML = "";
+    let nowcel = document.getElementById("nowcel");
+    nowcel.innerHTML = "";
     zougendatajs.innerHTML = "";
     idoudatajs.innerHTML = "";
 
@@ -192,7 +192,6 @@ function SQLfunc(JsonData){
     let idouhead = document.createElement("thead");
     let idoutr = document.createElement("tr");
 
-    let zaicel = ["保管場所","金額"];
     let zoucel = ["分類","場所","金額","種類","コメント","日付"];
     let zouop = ["tableOther","tableOther",
                     "tablekane","tableHow","","tableDate"];
@@ -200,30 +199,29 @@ function SQLfunc(JsonData){
     let idouop = ["tableOther","tableOther",
                     "tablekane","","tableDate"];
 
-    //zaisanデータをテーブルに格納する
-    for(let lop=0;lop<zaicel.length;lop++){
-        let celth = document.createElement("th");
-        celth.textContent = zaicel[lop];
-        nowfrag.appendChild(nowhead).appendChild(nowtr).appendChild(celth);
-    }
-
-    nowdatajs.appendChild(nowfrag);
+    
 
     for(let lop=0;lop<JsonData.zaisan.length;lop++){
+        let div1 = document.createElement("div");
+        let div2 = document.createElement("div");
+        let div3 = document.createElement("div");
+        let div4 = document.createElement("div");
+        
+        div1.setAttribute("class","en");
+        div2.setAttribute("class","tekari1");
+        div3.setAttribute("class","tekari2");
+        div4.setAttribute("class","cont");
 
-        let fragment = document.createDocumentFragment();
-        let tr = document.createElement("tr");
-        let nametd = document.createElement("td");
-        let kanetd = document.createElement("td");
-
-        kanetd.setAttribute("class","kane");
-        nametd.textContent = JsonData.zaisan[lop].name;
-        JsonData.zaisan[lop].num = changekane(JsonData.zaisan[lop].num);
-        kanetd.textContent = JsonData.zaisan[lop].num;
-        fragment.appendChild(tr).appendChild(nametd);
-        fragment.appendChild(tr).appendChild(kanetd);
-        nowdatajs.appendChild(fragment);
+        div4.textContent = "　" + JsonData.zaisan[lop].name + "　" + JsonData.zaisan[lop].num;
+       
+        div1.appendChild(div2);
+        div1.appendChild(div3);
+        div1.appendChild(div4);
+        
+        nowcel.appendChild(div1);
     }
+
+
 
     //zougenデータをテーブルに格納する。データがない時はないと表示する。
     if(JsonData.zougen === "今月のデータはありません"){
