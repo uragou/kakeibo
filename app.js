@@ -881,6 +881,7 @@ function zougenAdd(bunkatu){
 
     let insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE(NOW()) );";
     console.log(Henkan(bunkatu[5]));
+    console.log(Today);
     console.log(parseInt(  Henkan(bunkatu[5])  ));
 
     if(bunkatu[5] === "today"){
