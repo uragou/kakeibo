@@ -1,0 +1,21 @@
+1.nodeのnpm
+    initとmysqlする
+
+2.kakeibo_dbをMySQL内に作成、
+let dbConfig = {
+    host: 'localhost',
+    database: 'kakeibo_db',
+    user: 'kakeibo',
+    password: 'kakeibokey'
+};
+の通り、ローカルで動かす前提だからこのまま
+
+3.nodeを起動してlocalhostの55555ポートをブラウザで開く(chrome)
+
+現状zaisanテーブルは作るだけなので中身がなく使用できない
+同名のデータを作成すれば試用できる
+
+zougenは
+    name varchar20(主キー)とkane int11で構成されている
+
+

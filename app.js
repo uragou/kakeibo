@@ -163,7 +163,7 @@ function InittableFunc1(){
     });
 }
 
-function InittableFunc2(){
+function InittableFunc2(data){
     return new Promise( (resolve,reject) =>{
         connection.query("INSERT INTO zaisan (name,kane) VALUES(\""+ data +"\",0);", function(err,results){
             if(!(err)){

@@ -1,21 +1,18 @@
-1.nodeのnpm
-    initとmysqlする
+nodeの設定
+    npm init
+    npm install mysql
 
-2.kakeibo_dbをMySQL内に作成、
-let dbConfig = {
-    host: 'localhost',
-    database: 'kakeibo_db',
-    user: 'kakeibo',
-    password: 'kakeibokey'
-};
-の通り、ローカルで動かす前提だからこのまま
+mysqlの設定
 
-3.nodeを起動してlocalhostの55555ポートをブラウザで開く(chrome)
-
-現状zaisanテーブルは作るだけなので中身がなく使用できない
-同名のデータを作成すれば試用できる
-
-zougenは
-    name varchar20(主キー)とkane int11で構成されている
+create user 'kakeibo'@'localhost' identified by 'kakeibokey';
+use kakeibo_db;
+GRANT ALL ON kakeibo_db.* to 'kakeibo'@'localhost';
 
 
+実行
+
+node app.js
+
+初期状態では品名下の数字の表示がずれるが、数千円程度の値があれば正常に表示可能
+過去の日付は最大90日以内まで入力できる。
+jsをいじるとそれ以外の値が送信できるが、1900年以前は入力不可にする
