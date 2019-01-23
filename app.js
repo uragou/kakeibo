@@ -887,7 +887,7 @@ function zougenAdd(bunkatu){
     if(bunkatu[5] === "today"){
         console.log("正常な今日");
     }else if(parseInt(Today) <= parseInt(  Henkan(bunkatu[5])  )){
-        console.log("昨日以前じゃないじゃん");
+        console.log("昨日以前じゃない");
         return;
     }else if(parseInt(Today) > parseInt( Henkan(bunkatu[5]) )){
         insertData = "INSERT INTO zougen"+ hdate +"  (bunrui,basyo,kane,syurui,komento,time) VALUES('" + bunkatu[0] + "','" + bunkatu[1] + "'," + bunkatu[2] + ",'" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE('" + bunkatu[5] +"') );";
@@ -909,7 +909,7 @@ function idouadd(bunkatu){
     if(bunkatu[5] === "today"){
         console.log("正常な今日");
     }else if(parseInt(Today) <= parseInt(  Henkan(bunkatu[5])  )){
-        console.log("昨日以前じゃないじゃん");
+        console.log("昨日以前じゃない");
         return;
     }else if(parseInt(Today) > parseInt( Henkan(bunkatu[5]) )){
         insertData = "INSERT INTO idou"+ hdate +" (kane,mae,ato,komento,time) VALUES(" + bunkatu[1] + ",'" + bunkatu[2] + "','" + bunkatu[3] + "',QUOTE('" + bunkatu[4] + "'), DATE('"+ bunkatu[5] +"') );";
@@ -978,4 +978,3 @@ function Henkan(DayData){
         return "error";
     }
 }
-
