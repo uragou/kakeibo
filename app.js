@@ -27,14 +27,23 @@ let Nidou = new Array();
 if(date.getMonth()+1 < 10){
 
     hdate = date.getFullYear()+'0'+ (date.getMonth()+1) ;
-    Today =  date.getFullYear()+'0'+ (date.getMonth()+1) + (date.getDate());
-
+    if( date.getDate() > 10 ){
+        Today =  date.getFullYear()+'0'+ (date.getMonth()+1) + (date.getDate());
+    }else{
+        Today =  date.getFullYear()+'0'+ (date.getMonth()+1) + '0' + (date.getDate());
+    }
+    
 }else{
 
-   hdate = date.getFullYear()+''+ (date.getMonth()+1) ;
-   Today =  date.getFullYear() + (date.getMonth()+1) + (date.getDate());
+    hdate = date.getFullYear()+''+ (date.getMonth()+1) ;
+    if( date.getDate() > 10 ){
+        Today =  date.getFullYear() + (date.getMonth()+1) + (date.getDate());
+    }else{
+        Today =  date.getFullYear() + (date.getMonth()+1) + '0' + (date.getDate());
+    }
 
 }
+
 //接続
 server.on("request",getdata);
         
